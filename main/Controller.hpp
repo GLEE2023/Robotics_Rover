@@ -4,8 +4,8 @@
 #include "Bluepad32.h"
 
 
-void onControllerConnected(ControllerPtr newController);
-void onControllerDisconnected(ControllerPtr newController);
+void onControllerConnect(ControllerPtr newController);
+void onControllerDisconnect(ControllerPtr newController);
 
 bool isControllerPaired();  //returns true if controller is paired
 bool getControllerStatus(); //returns true if controller has new data
