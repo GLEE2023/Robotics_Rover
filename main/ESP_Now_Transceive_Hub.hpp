@@ -27,7 +27,7 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
 bool ESP_Now_Hub_Pair_Controller(); //Checks whether a controller is connected
 void ESP_Now_Hub_Check_Controller_Status(); //Checks whether a controller has new data 
 
-ControllerPtr 
+ControllerPtr ESP_NowGetController();
 
 void ESP_NowControllerInit();
 

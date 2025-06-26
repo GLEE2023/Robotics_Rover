@@ -79,16 +79,33 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
   Serial.print(macStr);
   Serial.print(" send status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+
+  ESP_NowControllerInit();
+}
+
+void ESP_Now_Hub_Pair_Controller(){
+  while(!isControllerPaired()){};//Wait until controller gets paired
 }
 
 void ESP_Now_Hub_Check_Controller_Status(){
+  if(getControllerStatus()){
+    //if the controller has new data then put it in myCurrentController
+    ESP_NowGetController();
+    //TRANSMIT CONTROLLER DATA
+  }
+}
 
+
+ControllerPtr ESP_NowGetController(){
+  myCurrentController = getController(); //updates myCurrentController if there is new data
 }
 
 void ESP_Now_Hub_Wait(){
   ESP_Now_Hub_Check_Controller_Status();
+  delay(100);
 }
 
-
-
+void ESP_NowControllerInit(){
+  controllerInit();
+}
 

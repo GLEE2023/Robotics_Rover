@@ -12,7 +12,7 @@ bool getControllerStatus(); //returns true if controller has new data
 
 ControllerPtr getController();
 
-void contrllerInit();
+void controllerInit();
 
 
 
