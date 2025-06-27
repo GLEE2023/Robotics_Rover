@@ -1,11 +1,13 @@
 #include "ESP_Now_Transceive_Hub.hpp"
 
 
-#define PEER_ADDRESS_SIZE 6 //sizeof(receiverAddress) which is 6
+#define PEER_ADDRESS_SIZE 6 //numbers of elements in receiverAddress which is 6
 
 uint8_t receiverAddress[] = {0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+esp_now_peer_info_t peerInfo;
 
-receivedData;
+uint8_t receivedData;
+
 
 ControllerPtr myCurrentController;
 
@@ -45,6 +47,13 @@ void ESP_Now_Transceive_Init(){
   }
   // Register for a callback function that will be called when data is received
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
+
+  //Added code below
+  ESP_NowControllerInit(); //Initialize controller
+}
+
+void ESP_NowControllerInit(){
+  controllerInit();
 }
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
@@ -55,13 +64,12 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
   The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
   */
 
-  //The function definition is the same but the actual function is different
-  
-  memcpy(&receivedData, incomingData, sizeof(received_command));
+  char macStr[18];
+  Serial.printf("has received data from ");
+  snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
+  mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-  
-  
-
+  memcpy(&receivedData, incomingData, sizeof(receivedData));
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
@@ -80,7 +88,6 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
   Serial.print(" send status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 
-  ESP_NowControllerInit();
 }
 
 void ESP_Now_Hub_Pair_Controller(){
@@ -91,10 +98,11 @@ void ESP_Now_Hub_Check_Controller_Status(){
   if(getControllerStatus()){
     //if the controller has new data then put it in myCurrentController
     ESP_NowGetController();
-    //TRANSMIT CONTROLLER DATA
+    //Get controller data if new data is available
+
+    //Transmit the data
   }
 }
-
 
 ControllerPtr ESP_NowGetController(){
   myCurrentController = getController(); //updates myCurrentController if there is new data
@@ -105,7 +113,4 @@ void ESP_Now_Hub_Wait(){
   delay(100);
 }
 
-void ESP_NowControllerInit(){
-  controllerInit();
-}
 

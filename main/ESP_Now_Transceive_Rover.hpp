@@ -5,13 +5,13 @@
 #include <WiFi.h>
 
 
-typedef struct ultrasonic_message_t{
-  float distance
-} ultrasonic_message_t;
+// typedef struct ultrasonic_message_t{
+//   float distance
+// } ultrasonic_message_t;
 
-typedef struct controller_message{
-  ControllerPtr info;
-} controller_message_t;
+// typedef struct controller_message{
+//   ControllerPtr info;
+// } controller_message_t;
 
 
 
