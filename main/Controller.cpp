@@ -27,7 +27,6 @@ void onControllerDisconnect(ControllerPtr newController) {
 }
 
 void controllerInit() {
-  Serial.begin(115200);
   Serial.printf("Firmware: %s\n", BP32.firmwareVersion());
   const uint8_t* addr = BP32.localBdAddress();
   Serial.printf("BD Addr: %2X:%2X:%2X:%2X:%2X:%2X\n", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);

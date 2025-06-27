@@ -1,4 +1,3 @@
-#line 1 "C:\\Users\\Ethan Levin\\Documents\\Arduino\\Controller\\ESP_Now_Transceive_Hub.hpp"
 #ifndef ESP_NOW_TRANSCEIVE_HUB_H
 #define ESP_NOW_TRANSCEIVE_HUB_H
 
@@ -6,6 +5,7 @@
 #include <WiFi.h>
 
 #include "Controller.hpp"
+
 
 // typedef struct ultrasonic_message_t{
 //   float distance;

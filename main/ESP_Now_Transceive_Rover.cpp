@@ -3,7 +3,7 @@
 
 #define PEER_ADDRESS_SIZE 6 //sizeof(receiverAddress) which is 6
 
-uint8_t receiverAddress[] = {0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+static uint8_t hubAddress[] = {0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
 
 // received_command;
 

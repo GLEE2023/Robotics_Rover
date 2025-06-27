@@ -1,15 +1,15 @@
 #include "ESP_Now_Transceive_Hub.hpp"
+#include "Scheduler.hpp"
+
+#define PEER_ADDRESS_SIZE 6 //numbers of elements in roverAddress which is 6
+
+static uint8_t roverAddress[] = {0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+static  esp_now_peer_info_t peerInfo;
+
+static uint8_t receivedData;
 
 
-#define PEER_ADDRESS_SIZE 6 //numbers of elements in receiverAddress which is 6
-
-uint8_t receiverAddress[] = {0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
-esp_now_peer_info_t peerInfo;
-
-uint8_t receivedData;
-
-
-ControllerPtr myCurrentController;
+static ControllerPtr myCurrentController;
 
 void ESP_Now_Transceive_Init(){
 /*
@@ -20,7 +20,6 @@ void ESP_Now_Transceive_Init(){
 */
 
 //Modifications were done on this but it heavily drew inspiration on the initialization fromm the above project
-
 
  // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
@@ -36,7 +35,7 @@ void ESP_Now_Transceive_Init(){
   esp_now_register_send_cb(OnDataSent);
   
   // Register peer
-  memcpy(peerInfo.peer_addr, receiverAddress, PEER_ADDRESS_SIZE);
+  memcpy(peerInfo.peer_addr, roverAddress, PEER_ADDRESS_SIZE);
   peerInfo.channel = 0;  
   peerInfo.encrypt = false;
   
@@ -47,13 +46,12 @@ void ESP_Now_Transceive_Init(){
   }
   // Register for a callback function that will be called when data is received
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
-
-  //Added code below
-  ESP_NowControllerInit(); //Initialize controller
 }
 
 void ESP_NowControllerInit(){
+  removeSchedulerEvent(CONTROLLER_INIT_EVENT);
   controllerInit();
+  addSchedulerEvent(ESP_NOW_INIT_EVENT);
 }
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
@@ -68,7 +66,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
   Serial.printf("has received data from ");
   snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
   mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
+  Serial.print(macStr);
   memcpy(&receivedData, incomingData, sizeof(receivedData));
 }
 
@@ -92,6 +90,7 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
 
 void ESP_Now_Hub_Pair_Controller(){
   while(!isControllerPaired()){};//Wait until controller gets paired
+  Serial.printf("Controller has been successfully paired\n");
 }
 
 void ESP_Now_Hub_Check_Controller_Status(){
