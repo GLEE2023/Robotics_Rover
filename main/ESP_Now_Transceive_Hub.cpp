@@ -48,12 +48,14 @@ void ESP_Now_Transceive_Init(){
   // Register for a callback function that will be called when data is received
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
 
-  removeSchedulerEvent(ESP_NOW_WAIT_EVENT);
+  addSchedulerEvent(ESP_NOW_WAIT_EVENT);
 }
 
 void ESP_NowControllerInit(){
+  Serial.printf("Initializing controller:\n");
   removeSchedulerEvent(CONTROLLER_INIT_EVENT);
   controllerInit();
+  ESP_Now_Hub_Pair_Controller();
   addSchedulerEvent(ESP_NOW_INIT_EVENT);
 }
 

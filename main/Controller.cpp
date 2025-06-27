@@ -51,7 +51,7 @@ void controllerInit() {
 
 bool isControllerPaired(){
   if(!myController){
-    Serial.printf("Waiting for controller to pair");
+    Serial.printf("Waiting for controller to pair\n");
     return false;
   }
   return true;
