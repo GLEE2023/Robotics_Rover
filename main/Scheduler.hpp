@@ -1,8 +1,11 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
+#include <stdint.h>
+
 #define CONTROLLER_INIT_EVENT           (1 << 0)
 #define ESP_NOW_INIT_EVENT              (1 << 1)
+#define ESP_NOW_WAIT_EVENT              (1 << 2)
 
 /*Most of this code was reused from ECEN 2370 which was Embedded Systems, however the macros are different*/
 

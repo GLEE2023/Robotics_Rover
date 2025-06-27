@@ -33,6 +33,7 @@ void loop() {
   else if(events & ESP_NOW_INIT_EVENT){
     ESP_Now_Transceive_Init();
   }
-
-  ESP_Now_Hub_Wait();
+  else if(events & ESP_NOW_WAIT_EVENT){
+    ESP_Now_Hub_Wait();
+  }
 }
