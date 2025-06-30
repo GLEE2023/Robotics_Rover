@@ -4,6 +4,7 @@
 #define PEER_ADDRESS_SIZE 6 //numbers of elements in roverAddress which is 6
 
 #define DATA_TRANSMIT_TYPE_CONTROLLER 0
+#define DATA_TRANSMIT_TYPE_ULTRASONIC 1
 
 static uint8_t roverAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28};
 static  esp_now_peer_info_t peerInfo;
@@ -122,33 +123,33 @@ void ESP_Now_Hub_Check_Controller_Status(){
 
 ControllerPtr ESP_NowGetController(){
   myCurrentController = getController(); //updates myCurrentController if there is new data
-  controllerData.dpad = myCurrentController->dpad();
-  controllerData.axisX = myCurrentController->axisX();
-  controllerData.axisY = myCurrentController->axisY();
-  controllerData.axisRX = myCurrentController->axisRX();
-  controllerData.axisRY = myCurrentController->axisRY();
-  controllerData.btnA = myCurrentController->a();
-  controllerData.btnB = myCurrentController->b();
-  controllerData.btnX = myCurrentController->x();
-  controllerData.btnY = myCurrentController->y();
-  controllerData.l1 = myCurrentController->l1();
-  controllerData.l2 = myCurrentController->l2();
-  controllerData.r1 = myCurrentController->r1();
-  controllerData.r2 = myCurrentController->r2();
-  controllerData.thumbL = myCurrentController->thumbL();
-  controllerData.thumbR = myCurrentController->thumbR();
-  
+  if(myCurrentController){
+    controllerData.dpad = myCurrentController->dpad();
+    controllerData.axisX = myCurrentController->axisX();
+    controllerData.axisY = myCurrentController->axisY();
+    controllerData.axisRX = myCurrentController->axisRX();
+    controllerData.axisRY = myCurrentController->axisRY();
+    controllerData.btnA = myCurrentController->a();
+    controllerData.btnB = myCurrentController->b();
+    controllerData.btnX = myCurrentController->x();
+    controllerData.btnY = myCurrentController->y();
+    controllerData.l1 = myCurrentController->l1();
+    controllerData.l2 = myCurrentController->l2();
+    controllerData.r1 = myCurrentController->r1();
+    controllerData.r2 = myCurrentController->r2();
+    controllerData.thumbL = myCurrentController->thumbL();
+    controllerData.thumbR = myCurrentController->thumbR();
+  }
 }
 
 void ESP_NowTransmitDataController(){
   dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_CONTROLLER;
   
-  if(myCurrentController){//ensures that myCurrentController != nullptr
-    controllerData.controller = myCurrentController;
-  }
   dataToSend.controller_data = controllerData;
 
   //Note that dataToSend.ultrasonic_data is not used so consider the data to be garbage and do not look there
+  esp_now_send(roverAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
+  Serial.printf("Attempting to send the controller data to device address %d\n", roverAddress);
 }
 
 void ESP_NowTransmitData(uint32_t type){
