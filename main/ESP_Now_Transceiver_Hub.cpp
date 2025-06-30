@@ -59,8 +59,9 @@ void ESP_NowControllerInit(){
   Serial.printf("Initializing controller:\n");
   removeSchedulerEvent(CONTROLLER_INIT_EVENT);
   controllerInit();
+  delay(1000); //make sure the controller actually gets initialized
   ESP_Now_Hub_Pair_Controller();
-  addSchedulerEvent(ESP_NOW_INIT_EVENT);
+  addSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
 }
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
@@ -98,12 +99,20 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
 }
 
 void ESP_Now_Hub_Pair_Controller(){
-  while(!isControllerPaired()){};//Wait until controller gets paired
-  Serial.printf("Controller has been successfully paired\n");
+  if(BP32.update()){//updates Bluepad to check if new connection is available
+    removeSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
+    addSchedulerEvent(ESP_NOW_INIT_EVENT);
+  } 
+  // if(isControllerPaired()){
+  //   removeSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
+  //   Serial.printf("Controller has been successfully paired\n");
+  //   addSchedulerEvent(ESP_NOW_INIT_EVENT);
+  // }
 }
 
 void ESP_Now_Hub_Check_Controller_Status(){
   if(getControllerStatus()){
+    Serial.printf("Getting new controller data");
     //if the controller has new data then put it in myCurrentController
     ESP_NowGetController();
     //Get controller data if new data is available
@@ -120,7 +129,9 @@ ControllerPtr ESP_NowGetController(){
 void ESP_NowTransmitDataController(){
   dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_CONTROLLER;
   
-  controllerData.controller = myCurrentController;
+  if(myCurrentController){//ensures that myCurrentController != nullptr
+    controllerData.controller = myCurrentController;
+  }
   dataToSend.controller_data = controllerData;
 
   //Note that dataToSend.ultrasonic_data is not used so consider the data to be garbage and do not look there

@@ -19,7 +19,7 @@ void setup() {
     addSchedulerEvent(CONTROLLER_INIT_EVENT);
   #else
   //
-    addScheduler(ESP_NOW_INIT_EVENT);
+    addSchedulerEvent(ESP_NOW_INIT_EVENT);
   #endif
 }
 
@@ -31,8 +31,12 @@ void loop() {
   if(events & CONTROLLER_INIT_EVENT){
     ESP_NowControllerInit();
   }
+  else if(events & CONTROLLER_CHECK_PAIRING_EVENT){
+   ESP_Now_Hub_Pair_Controller();
+   delay(100);
+  }
   else if(events & ESP_NOW_INIT_EVENT){
-    ESP_Now_Transceiver_Init();
+    // ESP_Now_Transceiver_Init();
   }
   else if(events & ESP_NOW_WAIT_EVENT){
     ESP_Now_Hub_Wait();

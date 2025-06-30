@@ -1,5 +1,5 @@
-#ifndef ESP_NOW_TRANSCEIVE_ROVER_H
-#define ESP_NOW_TRANSCEIVE_ROVER_H
+#ifndef ESP_NOW_TRANSCEIVER_ROVER_H
+#define ESP_NOW_TRANSCEIVER_ROVER_H
 
 #include <esp_now.h>
 #include <WiFi.h>

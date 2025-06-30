@@ -1,5 +1,5 @@
-#ifndef ESP_NOW_TRANSCEIVE_HUB_H
-#define ESP_NOW_TRANSCEIVE_HUB_H
+#ifndef ESP_NOW_TRANSCEIVER_HUB_H
+#define ESP_NOW_TRANSCEIVER_HUB_H
 
 #include <esp_now.h>
 #include <WiFi.h>
@@ -7,7 +7,21 @@
 #include "Controller.hpp"
 
 typedef struct controller_data_t{
-  ControllerPtr controller;
+  uint8_t dpad;
+  uint32_t axisX;
+  uint32_t axisY;
+  uint32_t axisRX;
+  uint32_t axisRY;
+  bool     btnA;
+  bool     btnB;
+  bool     btnX;
+  bool     btnY;
+  bool     l1;
+  bool     l2;
+  bool     r1;
+  bool     r2;
+  bool     thumbL;
+  bool     thumbR;
 } controller_data_t;
 
 typedef struct ultrasonic_data_t{

@@ -5,7 +5,7 @@ ControllerPtr myController;
 void onControllerConnect(ControllerPtr newController) {
   if(myController == nullptr){
     myController = newController;
-    Serial.printf("Connect is successfully paired");
+    Serial.printf("Connect is successfully paired\n");
     ControllerProperties properties = newController->getProperties();
     Serial.printf("Controller model: %s, VID=0x%04x, PID=0x%04x\n", newController->getModelName().c_str(), properties.vendor_id, properties.product_id);
   }
@@ -39,7 +39,8 @@ void controllerInit() {
   // Calling "forgetBluetoothKeys" in setup() just as an example.
   // Forgetting Bluetooth keys prevents "paired" gamepads to reconnect.
   // But it might also fix some connection / re-connection issues.
-  BP32.forgetBluetoothKeys();
+ 
+  // BP32.forgetBluetoothKeys();
 
   // Enables mouse / touchpad support for gamepads that support them.
   // When enabled, controllers like DualSense and DualShock4 generate two connected devices:
@@ -50,17 +51,27 @@ void controllerInit() {
 }
 
 bool isControllerPaired(){
-  if(!myController){
-    Serial.printf("Waiting for controller to pair\n");
-    return false;
+  if(myController){
+  return myController->isConnected();
   }
-  return true;
+  return false;
+}
+
+bool hasControllerData(){
+  if(myController){
+   return myController->hasData(); //returns whether controller has new data
+  }
+  return false;
 }
 
 bool getControllerStatus(){
-  return BP32.update(); //returns whether controller has new data
+  return hasControllerData() && isControllerPaired();
 }
 
+
 ControllerPtr getController(){
-  return myController;
+  if(myController){//checks whether it exists
+   return myController;
+  }
+  return nullptr;
 }
