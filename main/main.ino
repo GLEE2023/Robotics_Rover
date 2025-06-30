@@ -36,7 +36,7 @@ void loop() {
    delay(100);
   }
   else if(events & ESP_NOW_INIT_EVENT){
-    // ESP_Now_Transceiver_Init();
+    ESP_Now_Transceiver_Init();
   }
   else if(events & ESP_NOW_WAIT_EVENT){
     ESP_Now_Hub_Wait();

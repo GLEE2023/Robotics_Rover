@@ -112,8 +112,6 @@ void ESP_Now_Hub_Pair_Controller(){
 
 void ESP_Now_Hub_Check_Controller_Status(){
   if(getControllerStatus()){
-    Serial.printf("Getting new controller data");
-    //if the controller has new data then put it in myCurrentController
     ESP_NowGetController();
     //Get controller data if new data is available
 
@@ -124,6 +122,22 @@ void ESP_Now_Hub_Check_Controller_Status(){
 
 ControllerPtr ESP_NowGetController(){
   myCurrentController = getController(); //updates myCurrentController if there is new data
+  controllerData.dpad = myCurrentController->dpad();
+  controllerData.axisX = myCurrentController->axisX();
+  controllerData.axisY = myCurrentController->axisY();
+  controllerData.axisRX = myCurrentController->axisRX();
+  controllerData.axisRY = myCurrentController->axisRY();
+  controllerData.btnA = myCurrentController->a();
+  controllerData.btnB = myCurrentController->b();
+  controllerData.btnX = myCurrentController->x();
+  controllerData.btnY = myCurrentController->y();
+  controllerData.l1 = myCurrentController->l1();
+  controllerData.l2 = myCurrentController->l2();
+  controllerData.r1 = myCurrentController->r1();
+  controllerData.r2 = myCurrentController->r2();
+  controllerData.thumbL = myCurrentController->thumbL();
+  controllerData.thumbR = myCurrentController->thumbR();
+  
 }
 
 void ESP_NowTransmitDataController(){

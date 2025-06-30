@@ -52,7 +52,7 @@ void controllerInit() {
 
 bool isControllerPaired(){
   if(myController){
-  return myController->isConnected();
+    return myController->isConnected()
   }
   return false;
 }
