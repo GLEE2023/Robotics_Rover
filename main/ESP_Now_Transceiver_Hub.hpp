@@ -6,17 +6,21 @@
 
 #include "Controller.hpp"
 
+typedef struct controller_data_t{
+  ControllerPtr controller;
+} controller_data_t;
 
-// typedef struct ultrasonic_message_t{
-//   float distance;
-//   int number; //which ultrasonic sensor this data is coming from
-// } ultrasonic_message_t;
+typedef struct ultrasonic_data_t{
+  int data[4];//NUMBEROFSENSORS];
+} ultrasonic_data_t;
 
-// typedef struct controller_message{
-//   ControllerPtr info;
-// } controller_message_t;
+typedef struct data_transmit_t{
+  uint8_t dataTransmitType;
+  controller_data_t controller_data;
+  ultrasonic_data_t ultrasonic_data;
+} data_transmit_t;
 
-void ESP_Now_Transceive_Init(); //Initializes Transceiver
+void ESP_Now_Transceiver_Init(); //Initializes Transceiver
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len);
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
@@ -27,7 +31,8 @@ void ESP_Now_Hub_Check_Controller_Status(); //Checks whether a controller has ne
 void ESP_NowControllerInit(); //Initializes the controller pairing
 
 //Send data commands
-void ESP_NowTransmitControllerData(ControllerPtr myCtrl); //Transmits the controller data
+void ESP_NowTransmitDataController(); //Transmits the controller data
+void ESP_NowTransmitData(uint32_t type);
 
 ControllerPtr ESP_NowGetController();
 

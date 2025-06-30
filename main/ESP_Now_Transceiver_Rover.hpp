@@ -15,7 +15,7 @@
 
 
 
-void ESP_Now_Transceive_Init(); //Initializes Transceiver
+void ESP_Now_Transceiver_Init(); //Initializes Transceiver
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len);
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);

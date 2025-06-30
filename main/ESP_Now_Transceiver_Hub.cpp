@@ -1,17 +1,21 @@
-#include "ESP_Now_Transceive_Hub.hpp"
+#include "ESP_Now_Transceiver_Hub.hpp"
 #include "Scheduler.hpp"
 
 #define PEER_ADDRESS_SIZE 6 //numbers of elements in roverAddress which is 6
 
-static uint8_t roverAddress[] = {0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+#define DATA_TRANSMIT_TYPE_CONTROLLER 0
+
+static uint8_t roverAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28};
 static  esp_now_peer_info_t peerInfo;
 
 static uint8_t receivedData;
+static data_transmit_t dataToSend;
 
+static controller_data_t controllerData;
 
 static ControllerPtr myCurrentController;
 
-void ESP_Now_Transceive_Init(){
+void ESP_Now_Transceiver_Init(){
 /*
   Rui Santos & Sara Santos - Random Nerd Tutorials
   Complete project details at https://RandomNerdTutorials.com/esp-now-two-way-communication-esp32/
@@ -105,6 +109,7 @@ void ESP_Now_Hub_Check_Controller_Status(){
     //Get controller data if new data is available
 
     //Transmit the data
+    ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
   }
 }
 
@@ -112,9 +117,27 @@ ControllerPtr ESP_NowGetController(){
   myCurrentController = getController(); //updates myCurrentController if there is new data
 }
 
+void ESP_NowTransmitDataController(){
+  dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_CONTROLLER;
+  
+  controllerData.controller = myCurrentController;
+  dataToSend.controller_data = controllerData;
+
+  //Note that dataToSend.ultrasonic_data is not used so consider the data to be garbage and do not look there
+}
+
+void ESP_NowTransmitData(uint32_t type){
+  switch (type) {
+    case DATA_TRANSMIT_TYPE_CONTROLLER:
+      ESP_NowTransmitDataController();
+      break;
+    default:
+      Serial.printf("No valid type was inputted");
+      break;
+  }
+}
+
 void ESP_Now_Hub_Wait(){
   ESP_Now_Hub_Check_Controller_Status();
   delay(100);
 }
-
-
