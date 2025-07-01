@@ -118,6 +118,7 @@ void ESP_Now_Hub_Pair_Controller(){
 
 void ESP_Now_Hub_Check_Controller_Status(){
   if(getControllerStatus()){
+    
     ESP_NowGetController();
     //Get controller data if new data is available
 
@@ -150,7 +151,7 @@ void ESP_NowGetController(){
 void ESP_Now_Hub_Wait(){
   ESP_Now_Hub_Check_Controller_Status();
   ESP_NowPrintControllerData();
-  delay(100);
+  delay(1000);
 }
 
 

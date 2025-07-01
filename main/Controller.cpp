@@ -52,6 +52,7 @@ void controllerInit() {
 
 bool isControllerPaired(){
   if(myController){
+    BP32.update(); //Update to check if controller is paired
     return myController->isConnected();
   }
   return false;
@@ -59,7 +60,8 @@ bool isControllerPaired(){
 
 bool hasControllerData(){
   if(myController){
-   return myController->hasData(); //returns whether controller has new data
+    BP32.update(); //Update to look for new data
+    return myController->hasData(); //returns whether controller has new data
   }
   return false;
 }
