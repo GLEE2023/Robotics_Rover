@@ -50,7 +50,7 @@ void ESP_NowTransmitData(uint32_t type);
 
 void ESP_NowPrintControllerData();
 
-void ESP_Now_Hub_Wait();
+void ESP_Now_Wait();
 
 
 /*                 HUB FUNCTIONS                */

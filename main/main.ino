@@ -1,9 +1,9 @@
 #include "Scheduler.hpp"
 #include "ESP_Now_Transceiver.hpp"
 
-#define HUB_INIT   0 
-#define ROVER_INIT 1
-#define TRANSCEIVER_INIT HUB_INIT
+#define HUB_INIT   HUB_BUILD 
+#define ROVER_INIT ROVER_BUILD
+#define TRANSCEIVER_INIT TRANSCEIVER_BUILD
 
 void setup() {
   // put your setup code here, to run once:
@@ -23,6 +23,7 @@ void loop() {
 
   uint32_t events = getScheduledEvents();
 
+#if TRANSCEIVER_INIT == HUB_INIT
   if(events & CONTROLLER_INIT_EVENT){
     ESP_NowControllerInit();
   }
@@ -30,10 +31,12 @@ void loop() {
    ESP_Now_Hub_Pair_Controller();
    delay(100);
   }
-  else if(events & ESP_NOW_INIT_EVENT){
+  else 
+#endif
+  if(events & ESP_NOW_INIT_EVENT){
     ESP_Now_Transceiver_Init();
   }
   else if(events & ESP_NOW_WAIT_EVENT){
-    ESP_Now_Hub_Wait();
+    ESP_Now_Wait();
   }
 }

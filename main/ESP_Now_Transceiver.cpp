@@ -14,7 +14,7 @@
 #endif
 static  esp_now_peer_info_t peerInfo;
 
-static uint8_t receivedData;
+static data_transmit_t receivedData;
 static data_transmit_t dataToSend;
 
 static controller_data_t controllerData;
@@ -59,15 +59,6 @@ void ESP_Now_Transceiver_Init(){
   addSchedulerEvent(ESP_NOW_WAIT_EVENT);
 }
 
-void ESP_NowControllerInit(){
-  Serial.printf("Initializing controller:\n");
-  removeSchedulerEvent(CONTROLLER_INIT_EVENT);
-  controllerInit();
-  delay(1000); //make sure the controller actually gets initialized
-  ESP_Now_Hub_Pair_Controller();
-  addSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
-}
-
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
   /*
   Rui Santos & Sara Santos - Random Nerd Tutorials
@@ -82,6 +73,11 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
   mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   Serial.print(macStr);
   memcpy(&receivedData, incomingData, sizeof(receivedData));
+
+  if(receivedData.dataTransmitType == DATA_TRANSMIT_TYPE_CONTROLLER){
+    controllerData = receivedData.controller_data; //Updates the controller data
+    ESP_NowPrintControllerData();
+  }
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
@@ -102,8 +98,17 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
 
 }
 
-//Configuration for the HUB
+/* HUB CONFIGURATION      */
 #if TRANSCEIVER_BUILD == HUB_BUILD
+void ESP_NowControllerInit(){
+  Serial.printf("Initializing controller:\n");
+  removeSchedulerEvent(CONTROLLER_INIT_EVENT);
+  controllerInit();
+  delay(1000); //make sure the controller actually gets initialized
+  ESP_Now_Hub_Pair_Controller();
+  addSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
+}
+
 void ESP_Now_Hub_Pair_Controller(){
   if(BP32.update()){//updates Bluepad to check if new connection is available
     removeSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
@@ -121,8 +126,9 @@ void ESP_Now_Hub_Check_Controller_Status(){
     
     ESP_NowGetController();
     //Get controller data if new data is available
-
+    
     //Transmit the data
+    ESP_NowPrintControllerData();
     ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
   }
 }
@@ -148,18 +154,17 @@ void ESP_NowGetController(){
   }
 }
 
-void ESP_Now_Hub_Wait(){
+void ESP_Now_Wait(){
   ESP_Now_Hub_Check_Controller_Status();
-  ESP_NowPrintControllerData();
-  delay(1000);
+  delay(100);
 }
 
 
 #else /* Rover Transceiver Functions */
 
-void ESP_Now_Hub_Wait(){
-  Serial.printf("Waiting for data");
-  delay(100);
+void ESP_Now_Wait(){
+  // Serial.printf("Waiting for data\n");
+  // delay(1000);
 }
 
 
