@@ -1,5 +1,5 @@
 #include "Scheduler.hpp"
-#include "ESP_Now_Transceiver_Hub.hpp"
+#include "ESP_Now_Transceiver.hpp"
 
 #define HUB_INIT   0 
 #define ROVER_INIT 1

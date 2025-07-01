@@ -1,14 +1,17 @@
-#include "ESP_Now_Transceiver_Hub.hpp"
+#include "ESP_Now_Transceiver.hpp"
 #include "Scheduler.hpp"
 
-#define PEER_ADDRESS_SIZE 6 //numbers of elements in roverAddress which is 6
+#define PEER_ADDRESS_SIZE 6 //numbers of elements which is 6 bytes
 
 #define DATA_TRANSMIT_TYPE_CONTROLLER 0
 #define DATA_TRANSMIT_TYPE_ULTRASONIC 1
 
-
-static uint8_t roverAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28};
-static uint8_t hubAddress[]   = {0x3C, 0x8A, 0x1F, 0xAA, 0xAA, 0xAA};
+#if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
+  static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address
+  static ControllerPtr myCurrentController;
+#else
+  static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
+#endif
 static  esp_now_peer_info_t peerInfo;
 
 static uint8_t receivedData;
@@ -16,8 +19,6 @@ static data_transmit_t dataToSend;
 
 static controller_data_t controllerData;
 static ultrasonic_data_t ultrasonicData;
-
-static ControllerPtr myCurrentController;
 
 void ESP_Now_Transceiver_Init(){
 /*
@@ -43,8 +44,7 @@ void ESP_Now_Transceiver_Init(){
   // get the status of Trasnmitted packet
   esp_now_register_send_cb(OnDataSent);
   
-  // Register peer
-  memcpy(peerInfo.peer_addr, roverAddress, PEER_ADDRESS_SIZE);
+  memcpy(peerInfo.peer_addr, peerAddress, PEER_ADDRESS_SIZE);
   peerInfo.channel = 0;  
   peerInfo.encrypt = false;
   
@@ -102,6 +102,8 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
 
 }
 
+//Configuration for the HUB
+#if TRANSCEIVER_BUILD == HUB_BUILD
 void ESP_Now_Hub_Pair_Controller(){
   if(BP32.update()){//updates Bluepad to check if new connection is available
     removeSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
@@ -124,7 +126,7 @@ void ESP_Now_Hub_Check_Controller_Status(){
   }
 }
 
-ControllerPtr ESP_NowGetController(){
+void ESP_NowGetController(){
   myCurrentController = getController(); //updates myCurrentController if there is new data
   if(myCurrentController){
     controllerData.dpad = myCurrentController->dpad();
@@ -145,15 +147,24 @@ ControllerPtr ESP_NowGetController(){
   }
 }
 
-void ESP_NowTransmitDataController(){
-  dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_CONTROLLER;
-  
-  dataToSend.controller_data = controllerData;
-
-  //Note that dataToSend.ultrasonic_data is not used so consider the data to be garbage and do not look there
-  esp_now_send(roverAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
-  Serial.printf("Attempting to send the controller data to device address %d\n", roverAddress);
+void ESP_Now_Hub_Wait(){
+  ESP_Now_Hub_Check_Controller_Status();
+  ESP_NowPrintControllerData();
+  delay(100);
 }
+
+
+#else /* Rover Transceiver Functions */
+
+void ESP_Now_Hub_Wait(){
+  Serial.printf("Waiting for data");
+  delay(100);
+}
+
+
+#endif
+
+
 
 void ESP_NowTransmitData(uint32_t type){
   switch (type) {
@@ -166,7 +177,36 @@ void ESP_NowTransmitData(uint32_t type){
   }
 }
 
-void ESP_Now_Hub_Wait(){
-  ESP_Now_Hub_Check_Controller_Status();
-  delay(100);
+void ESP_NowTransmitDataController(){
+  dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_CONTROLLER;
+  
+  dataToSend.controller_data = controllerData;
+
+  //Note that dataToSend.ultrasonic_data is not used so consider the data to be garbage and do not look there
+  esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
+  Serial.printf("Attempting to send controller data to address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+              peerAddress[0], peerAddress[1], peerAddress[2],
+              peerAddress[3], peerAddress[4], peerAddress[5]);  
 }
+
+void ESP_NowPrintControllerData(){
+  Serial.printf(
+    "dpad: 0x%02x, axis L: %4d, %4d, axis R: %4d, %4d, buttons: A %d, B %d, X %d, Y %d, L1 %d, L2 %d, R1 %d, R2 %d, ThumbL %d, ThumbR %d\n",
+    controllerData.dpad,           // D-Pad
+    controllerData.axisX,          // Left X Axis
+    controllerData.axisY,          // Left Y Axis
+    controllerData.axisRX,         // Right X Axis
+    controllerData.axisRY,         // Right Y Axis
+    controllerData.btnA,           // Button A
+    controllerData.btnB,           // Button B
+    controllerData.btnX,           // Button X
+    controllerData.btnY,           // Button Y
+    controllerData.l1,             // Button L1
+    controllerData.l2,             // Button L2
+    controllerData.r1,             // Button R1
+    controllerData.r2,             // Button R2
+    controllerData.thumbL,         // Left Thumbstick Press
+    controllerData.thumbR          // Right Thumbstick Press
+  );
+}
+
