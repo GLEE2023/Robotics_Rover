@@ -1,10 +1,5 @@
 #include "Scheduler.hpp"
-
-#if TRANSCEIVER_INIT == HUB_INIT
-  #include "ESP_Now_Transceiver_Hub.hpp"
-#else
-  #include "ESP_Now_Transceiver_Rover.hpp"
-#endif
+#include "ESP_Now_Transceiver_Hub.hpp"
 
 #define HUB_INIT   0 
 #define ROVER_INIT 1
