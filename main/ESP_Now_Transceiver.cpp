@@ -6,6 +6,9 @@
 #define DATA_TRANSMIT_TYPE_CONTROLLER 0
 #define DATA_TRANSMIT_TYPE_ULTRASONIC 1
 
+#define SANTIZATION_DEADZONE          10
+#define SANTIZATION_CHANGED(new, old)     (abs(new-old) > SANTIZATION_DEADZONE) //macro to detect if there is a significant change
+
 #if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
   static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address
   static ControllerPtr myCurrentController;
@@ -98,7 +101,7 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
 
 }
 
-/* HUB CONFIGURATION      */
+/*                       HUB CONFIGURATION              */
 #if TRANSCEIVER_BUILD == HUB_BUILD
 void ESP_NowControllerInit(){
   Serial.printf("Initializing controller:\n");
@@ -114,49 +117,48 @@ void ESP_Now_Hub_Pair_Controller(){
     removeSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
     addSchedulerEvent(ESP_NOW_INIT_EVENT);
   } 
-  // if(isControllerPaired()){
-  //   removeSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
-  //   Serial.printf("Controller has been successfully paired\n");
-  //   addSchedulerEvent(ESP_NOW_INIT_EVENT);
-  // }
 }
 
 void ESP_Now_Hub_Check_Controller_Status(){
   if(getControllerStatus()){
-    
-    ESP_NowGetController();
-    //Get controller data if new data is available
-    
-    //Transmit the data
-    ESP_NowPrintControllerData();
-    ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
+    ESP_NowGetController(); //Transmit data on successful controller update
   }
 }
 
 void ESP_NowGetController(){
   myCurrentController = getController(); //updates myCurrentController if there is new data
-  if(myCurrentController){
-    controllerData.dpad = myCurrentController->dpad();
-    controllerData.axisX = myCurrentController->axisX();
-    controllerData.axisY = myCurrentController->axisY();
-    controllerData.axisRX = myCurrentController->axisRX();
-    controllerData.axisRY = myCurrentController->axisRY();
-    controllerData.btnA = myCurrentController->a();
-    controllerData.btnB = myCurrentController->b();
-    controllerData.btnX = myCurrentController->x();
-    controllerData.btnY = myCurrentController->y();
-    controllerData.l1 = myCurrentController->l1();
-    controllerData.l2 = myCurrentController->l2();
-    controllerData.r1 = myCurrentController->r1();
-    controllerData.r2 = myCurrentController->r2();
-    controllerData.thumbL = myCurrentController->thumbL();
-    controllerData.thumbR = myCurrentController->thumbR();
+  if(!myCurrentController){return;} //Catches exception of nullptr
+  
+  static controller_data_t newControllerData;
+  
+  /* Updates the new controllerDatas */
+  newControllerData.dpad = myCurrentController->dpad();
+  newControllerData.axisX = myCurrentController->axisX();
+  newControllerData.axisY = myCurrentController->axisY();
+  newControllerData.axisRX = myCurrentController->axisRX();
+  newControllerData.axisRY = myCurrentController->axisRY();
+  newControllerData.btnA = myCurrentController->a();
+  newControllerData.btnB = myCurrentController->b();
+  newControllerData.btnX = myCurrentController->x();
+  newControllerData.btnY = myCurrentController->y();
+  newControllerData.l1 = myCurrentController->l1();
+  newControllerData.l2 = myCurrentController->l2();
+  newControllerData.r1 = myCurrentController->r1();
+  newControllerData.r2 = myCurrentController->r2();
+  newControllerData.thumbL = myCurrentController->thumbL();
+  newControllerData.thumbR = myCurrentController->thumbR();
+
+  if(ESP_NowSantizeController(newControllerData, controllerData)){
+    //if the controller data is different from the previous data then we will update the global controllerData
+    controllerData = newControllerData; //update controllerData to the new data
+    ESP_NowPrintControllerData(); 
+    ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
   }
 }
 
 void ESP_Now_Wait(){
   ESP_Now_Hub_Check_Controller_Status();
-  delay(100);
+  // delay(100);
 }
 
 
@@ -216,3 +218,31 @@ void ESP_NowPrintControllerData(){
   );
 }
 
+bool ESP_NowSanitizeController(controller_data_t &newData, controller_data_t &prevData){
+  if(newData == NULL || prevData == NULL){
+    return false;
+  }
+
+  if(
+  SANTIZATION_CHANGED(newData.axisX, prevData.axisX) ||
+  SANTIZATION_CHANGED(newData.axisY, prevData.axisY) ||
+  SANTIZATION_CHANGED(newData.axisRX, prevData.axisRX) ||
+  SANTIZATION_CHANGED(newData.axisRY, prevData.axisRY) ||
+  newData.dpad != prevData.dpad     ||
+  newData.btnA != prevData.btnA     ||
+  newData.btnB != prevData.btnB     ||
+  newData.btnX != prevData.btnX     ||
+  newData.btnY != prevData.btnY     ||
+  newData.l1   != prevData.l1       ||
+  newData.l2   != prevData.l2       ||
+  newData.r1   != prevData.r1       ||
+  newData.r2   != prevData.r2       ||
+  newData.thumbL != prevData.thumbL ||
+  newData.thumbR != prevData.thumbR){
+    //checks if there is a significant change in the joysticks or if a different button was pressed
+    return true;
+  }
+
+
+  return false; //No meaningful change
+}
