@@ -218,8 +218,6 @@ void ESP_NowPrintControllerData(){
   );
 }
 
-bool ESP_NowCheckControllerDrift(newData,)
-
 bool ESP_NowSanitizeController(controller_data_t &newData, controller_data_t &prevData){
   if(newData == NULL || prevData == NULL){
     return false;
@@ -248,4 +246,3 @@ bool ESP_NowSanitizeController(controller_data_t &newData, controller_data_t &pr
 
   return false; //No meaningful change
 }
-
