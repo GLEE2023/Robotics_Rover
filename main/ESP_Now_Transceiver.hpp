@@ -12,10 +12,10 @@
 
 typedef struct controller_data_t{
   uint8_t dpad;
-  uint32_t axisX;
-  uint32_t axisY;
-  uint32_t axisRX;
-  uint32_t axisRY;
+  int axisX;
+  int axisY;
+  int axisRX;
+  int axisRY;
   bool     btnA;
   bool     btnB;
   bool     btnX;

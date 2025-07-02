@@ -7,7 +7,8 @@
 #define DATA_TRANSMIT_TYPE_ULTRASONIC 1
 
 #define SANTIZATION_DEADZONE          10
-#define SANTIZATION_CHANGED(new, old)     (abs(new-old) > SANTIZATION_DEADZONE) //macro to detect if there is a significant change
+#define SANTIZATION_CHANGED(new, old)     (abs((new)-(old)) > SANTIZATION_DEADZONE) //macro to detect if there is a significant change
+#define CLEAR_COUNT(count)            (count = 0)
 
 #if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
   static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address
@@ -22,6 +23,10 @@ static data_transmit_t dataToSend;
 
 static controller_data_t controllerData;
 static ultrasonic_data_t ultrasonicData;
+
+static uint32_t lastSentTime;
+static uint32_t retryCount = 0;
+
 
 void ESP_Now_Transceiver_Init(){
 /*
@@ -99,6 +104,19 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
   Serial.print(" send status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 
+  if(status == ESP_NOW_SEND_SUCCESS || retryCount > 5){
+    //On Successful send or give up after 5 retries
+    clearCount(retryCount);
+    removeSchedulerEvent(ESP_RETRY_SEND_EVENT);
+    addSchedulerEvent(ESP_WAIT_EVENT);
+  }
+  else{
+    removeSchedulerEvent(ESP_WAIT_EVENT);
+    addSchedulerEvent(ESP_RETRY_SEND_EVENT);
+    retryCount++;
+    //Attempt to retransmit if it failed
+  }
+
 }
 
 /*                       HUB CONFIGURATION              */
@@ -148,7 +166,7 @@ void ESP_NowGetController(){
   newControllerData.thumbL = myCurrentController->thumbL();
   newControllerData.thumbR = myCurrentController->thumbR();
 
-  if(ESP_NowSantizeController(newControllerData, controllerData)){
+  if(ESP_NowSanitizeController(newControllerData, controllerData)){
     //if the controller data is different from the previous data then we will update the global controllerData
     controllerData = newControllerData; //update controllerData to the new data
     ESP_NowPrintControllerData(); 
@@ -218,10 +236,10 @@ void ESP_NowPrintControllerData(){
   );
 }
 
-bool ESP_NowSanitizeController(controller_data_t &newData, controller_data_t &prevData){
-  if(newData == NULL || prevData == NULL){
-    return false;
-  }
+bool ESP_NowSanitizeController(controller_data_t &newData, const controller_data_t &prevData){
+  // if(newData == NULL || prevData == NULL){
+  //   return false;
+  // }
 
   if(
   SANTIZATION_CHANGED(newData.axisX, prevData.axisX) ||
