@@ -49,6 +49,7 @@ void ESP_NowTransmitDataController(); //Transmits the controller data
 void ESP_NowTransmitData(uint32_t type);
 
 void ESP_NowPrintControllerData();
+bool ESP_NowSanitizeController(controller_data_t &newData, const controller_data_t &prevData); //Checks whether the L and R values were actually changed, as well as removing any controller deadzone
 
 void ESP_Now_Wait();
 
@@ -59,7 +60,8 @@ void ESP_Now_Wait();
 void ESP_Now_Hub_Pair_Controller(); //Checks whether a controller is connected
 void ESP_Now_Hub_Check_Controller_Status(); //Checks whether a controller has new data 
 void ESP_NowControllerInit(); //Initializes the controller pairing
-void ESP_NowGetController(); //Updates the global controller
+void ESP_NowGetController(); //Updates the global controller if there is an actual change and transmit the data
 #endif
+
 
 #endif
