@@ -1,5 +1,6 @@
   #include "ESP_Now_Transceiver.hpp"
   #include "Scheduler.hpp"
+  #include "esp_wifi.h"
 
   #define PEER_ADDRESS_SIZE 6 //numbers of elements which is 6 bytes
 
@@ -9,6 +10,8 @@
   #define SANTIZATION_DEADZONE              10
   #define SANTIZATION_CHANGED(new, old)     (abs((new)-(old)) > SANTIZATION_DEADZONE) //macro to detect if there is a significant change
   #define CLEAR_COUNT(count)                (count = 0) //resets count
+
+  #define WIFI_CHANNEL                      6
   #define TRANSMISSION_INTERVAL             100 //Interval of 100ms between messages
 
   #if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
@@ -26,8 +29,6 @@
   static ultrasonic_data_t ultrasonicData;
 
   static uint32_t lastSentTime;
-  static uint32_t retryCount = 0;
-
 
   void ESP_Now_Transceiver_Init(){
   /*
@@ -43,6 +44,9 @@
   // Set device as a Wi-Fi Station
     WiFi.mode(WIFI_STA);
 
+    esp_wifi_set_channel(WIFI_CHANNEL, WIFI_SECOND_CHAN_NONE);  // Lock to fixed channel
+
+
     // Init ESP-NOW
     if (esp_now_init() != ESP_OK) {
       Serial.println("Error initializing ESP-NOW");
@@ -54,7 +58,7 @@
     esp_now_register_send_cb(OnDataSent);
     
     memcpy(peerInfo.peer_addr, peerAddress, PEER_ADDRESS_SIZE);
-    peerInfo.channel = 0;  
+    peerInfo.channel = WIFI_CHANNEL;  
     peerInfo.encrypt = false;
     
     // Add peer        
@@ -64,6 +68,12 @@
     }
     // Register for a callback function that will be called when data is received
     esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
+
+
+    uint8_t ch;
+wifi_second_chan_t second;
+esp_wifi_get_channel(&ch, &second);
+Serial.printf("Current WiFi channel is %d\n", ch);
 
     addSchedulerEvent(ESP_NOW_WAIT_EVENT);
   }
@@ -104,23 +114,6 @@
     Serial.print(macStr);
     Serial.print(" send status:\t");
     Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-
-    // if(status == ESP_NOW_SEND_SUCCESS || retryCount > 5){
-    //   //On Successful send or give up after 5 retries
-    //   // CLEAR_COUNT(retryCount);
-    //   retryCount=0;
-    //   removeSchedulerEvent(ESP_RETRY_SEND_EVENT);
-    //   addSchedulerEvent(ESP_NOW_WAIT_EVENT);
-    //   delay(50);
-    // }
-    // else{
-    //   removeSchedulerEvent(ESP_NOW_WAIT_EVENT);
-    //   addSchedulerEvent(ESP_RETRY_SEND_EVENT);
-    //   retryCount++;
-    //   delay(50);
-    //   //Attempt to retransmit if it failed
-    // }
-
   }
 
   /*                       HUB CONFIGURATION              */
@@ -174,12 +167,16 @@
       //if the controller data is different from the previous data then we will update the global controllerData
       controllerData = newControllerData; //update controllerData to the new data
       ESP_NowPrintControllerData(); 
-      ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
+      // ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
+      // delay(200);
     }
   }
 
   void ESP_Now_Wait(){
     ESP_Now_Hub_Check_Controller_Status();
+    delay(200);
+    ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
+      delay(200);
     // delay(100);
   }
 
@@ -188,7 +185,7 @@
 
   void ESP_Now_Wait(){
     // Serial.printf("Waiting for data\n");
-    // delay(1000);
+    delay(100);
   }
 
 
@@ -207,13 +204,14 @@
     }
   }
 
-  void ESP_NowTransmitDataController(){
+  void  ESP_NowTransmitDataController(){
     dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_CONTROLLER;
     
     dataToSend.controller_data = controllerData;
 
     //Note that dataToSend.ultrasonic_data is not used so consider the data to be garbage and do not look there
-    esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
+    esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
+    Serial.printf("esp_now_send result: %d\n", result);//print if an error occured and of what type
 
     Serial.printf("Attempting to send controller data to address: %02X:%02X:%02X:%02X:%02X:%02X\n",
                 peerAddress[0], peerAddress[1], peerAddress[2],

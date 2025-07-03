@@ -39,8 +39,4 @@ void loop() {
   else if(events & ESP_NOW_WAIT_EVENT){
     ESP_Now_Wait();
   }
-  else if(events & ESP_RETRY_SEND_EVENT){
-    // ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
-        ESP_NowTransmitDataController();
-  }
 }
