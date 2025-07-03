@@ -1,6 +1,5 @@
   #include "ESP_Now_Transceiver.hpp"
   #include "Scheduler.hpp"
-  #include "esp_wifi.h"
 
   #define PEER_ADDRESS_SIZE 6 //numbers of elements which is 6 bytes
 
@@ -10,8 +9,6 @@
   #define SANTIZATION_DEADZONE              10
   #define SANTIZATION_CHANGED(new, old)     (abs((new)-(old)) > SANTIZATION_DEADZONE) //macro to detect if there is a significant change
   #define CLEAR_COUNT(count)                (count = 0) //resets count
-
-  #define WIFI_CHANNEL                      6
   #define TRANSMISSION_INTERVAL             100 //Interval of 100ms between messages
 
   #if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
@@ -44,9 +41,6 @@
   // Set device as a Wi-Fi Station
     WiFi.mode(WIFI_STA);
 
-    esp_wifi_set_channel(WIFI_CHANNEL, WIFI_SECOND_CHAN_NONE);  // Lock to fixed channel
-
-
     // Init ESP-NOW
     if (esp_now_init() != ESP_OK) {
       Serial.println("Error initializing ESP-NOW");
@@ -58,7 +52,7 @@
     esp_now_register_send_cb(OnDataSent);
     
     memcpy(peerInfo.peer_addr, peerAddress, PEER_ADDRESS_SIZE);
-    peerInfo.channel = WIFI_CHANNEL;  
+    peerInfo.channel = 0;  
     peerInfo.encrypt = false;
     
     // Add peer        
@@ -68,12 +62,6 @@
     }
     // Register for a callback function that will be called when data is received
     esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
-
-
-    uint8_t ch;
-wifi_second_chan_t second;
-esp_wifi_get_channel(&ch, &second);
-Serial.printf("Current WiFi channel is %d\n", ch);
 
     addSchedulerEvent(ESP_NOW_WAIT_EVENT);
   }
@@ -167,16 +155,13 @@ Serial.printf("Current WiFi channel is %d\n", ch);
       //if the controller data is different from the previous data then we will update the global controllerData
       controllerData = newControllerData; //update controllerData to the new data
       ESP_NowPrintControllerData(); 
-      // ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
-      // delay(200);
+      ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
+      delay(200);
     }
   }
 
   void ESP_Now_Wait(){
     ESP_Now_Hub_Check_Controller_Status();
-    delay(200);
-    ESP_NowTransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
-      delay(200);
     // delay(100);
   }
 
@@ -185,7 +170,6 @@ Serial.printf("Current WiFi channel is %d\n", ch);
 
   void ESP_Now_Wait(){
     // Serial.printf("Waiting for data\n");
-    delay(100);
   }
 
 
