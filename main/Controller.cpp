@@ -1,5 +1,6 @@
 #include "Controller.hpp"
 
+#if TRANSCEIVER_BUILD == HUB_BUILD //Need to do this since Arduino links all cpp files at the same time so we need to noto compile Controller if we are doing the rover build
 ControllerPtr myController;
 
 void onControllerConnect(ControllerPtr newController) {
@@ -77,3 +78,4 @@ ControllerPtr getController(){
   }
   return nullptr;
 }
+#endif

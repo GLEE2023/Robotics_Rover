@@ -1,15 +1,16 @@
   #include "ESP_Now_Transceiver.hpp"
-  #include "Scheduler.hpp"
 
   #define PEER_ADDRESS_SIZE 6 //numbers of elements which is 6 bytes
 
+  //Packet transmission type
   #define DATA_TRANSMIT_TYPE_CONTROLLER 0
   #define DATA_TRANSMIT_TYPE_ULTRASONIC 1
 
+  //Reduce unnecessary sends
   #define SANTIZATION_DEADZONE              10
   #define SANTIZATION_CHANGED(new, old)     (abs((new)-(old)) > SANTIZATION_DEADZONE) //macro to detect if there is a significant change
-  #define CLEAR_COUNT(count)                (count = 0) //resets count
-  #define TRANSMISSION_INTERVAL             100 //Interval of 100ms between messages
+  
+  #define WIFI_CHANNEL                  0
 
   #if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
     static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address
@@ -25,7 +26,6 @@
   static controller_data_t controllerData;
   static ultrasonic_data_t ultrasonicData;
 
-  static uint32_t lastSentTime;
 
   void ESP_Now_Transceiver_Init(){
   /*
@@ -41,6 +41,13 @@
   // Set device as a Wi-Fi Station
     WiFi.mode(WIFI_STA);
 
+
+    #if TRANSCEIVER_BUILD == ROVER_BUILD
+    //Disable power saving mode for the rover, unfortunately this cant be done on the hub since we require this mode if we are using both WiFi and Bluetooth
+      esp_wifi_set_ps(WIFI_PS_NONE);
+    #endif
+      
+
     // Init ESP-NOW
     if (esp_now_init() != ESP_OK) {
       Serial.println("Error initializing ESP-NOW");
@@ -52,7 +59,7 @@
     esp_now_register_send_cb(OnDataSent);
     
     memcpy(peerInfo.peer_addr, peerAddress, PEER_ADDRESS_SIZE);
-    peerInfo.channel = 0;  
+    peerInfo.channel = WIFI_CHANNEL;  
     peerInfo.encrypt = false;
     
     // Add peer        

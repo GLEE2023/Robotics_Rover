@@ -1,6 +1,10 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include "BuildConfig.hpp"
+
+/* Only Need to compile this file if HUB_BUILD */
+#if TRANSCEIVER_BUILD == HUB_BUILD 
 #include "Bluepad32.h"
 
 
@@ -15,6 +19,6 @@ ControllerPtr getController();
 
 void controllerInit();
 
-
+#endif
 
 #endif 

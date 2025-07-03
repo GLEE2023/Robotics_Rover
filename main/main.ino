@@ -1,16 +1,12 @@
 #include "Scheduler.hpp"
 #include "ESP_Now_Transceiver.hpp"
 
-#define HUB_INIT   HUB_BUILD 
-#define ROVER_INIT ROVER_BUILD
-#define TRANSCEIVER_INIT TRANSCEIVER_BUILD
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   Serial.printf("Setting up the initialization proceedure\n");
 
-  #if TRANSCEIVER_INIT == HUB_INIT
+  #if TRANSCEIVER_BUILD == HUB_BUILD
     addSchedulerEvent(CONTROLLER_INIT_EVENT);
   #else
   //
@@ -23,7 +19,7 @@ void loop() {
 
   uint32_t events = getScheduledEvents();
 
-#if TRANSCEIVER_INIT == HUB_INIT
+#if TRANSCEIVER_BUILD == HUB_BUILD
   if(events & CONTROLLER_INIT_EVENT){
     ESP_NowControllerInit();
   }
@@ -31,7 +27,7 @@ void loop() {
    ESP_Now_Hub_Pair_Controller();
    delay(100);
   }
-  else 
+  else /* Else required so we don't trigger two events in the same loop */ 
 #endif
   if(events & ESP_NOW_INIT_EVENT){
     ESP_Now_Transceiver_Init();

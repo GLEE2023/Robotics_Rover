@@ -1,14 +1,18 @@
 #ifndef ESP_NOW_TRANSCEIVER_H
 #define ESP_NOW_TRANSCEIVER_H
 
+#include "BuildConfig.hpp"
 #include <esp_now.h>
 #include <WiFi.h>
-#include "Controller.hpp"
+#include "Scheduler.hpp"
 
-#define HUB_BUILD         0
-#define ROVER_BUILD       1
-#define TRANSCEIVER_BUILD HUB_BUILD
-//change the build above to compile for the hub vs the rover
+  #if TRANSCEIVER_BUILD == ROVER_BUILD
+    #include <esp_wifi.h> //If its the rover we need to power saving mode but the hub doesn't so we don't need to include this library
+    //FALSE IF WE WANT TO USE WIFI CHANNEL OTHER THAN 0 THE CODE MUST CHANGE AND WE MUST USE THE FOLLOW WHEN INITIALIZING
+    //   esp_wifi_set_channel(WIFI_CHANNEL, WIFI_SECOND_CHAN_NONE); 
+  #else
+    #include "Controller.hpp" //Only hub needs to use the controller functions
+  #endif
 
 typedef struct controller_data_t{
   uint8_t dpad;
