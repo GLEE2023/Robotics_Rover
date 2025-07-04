@@ -43,17 +43,17 @@ typedef struct data_transmit_t{
 } data_transmit_t;
 
 /*                     Shared Functions                 */
-void ESP_Now_Transceiver_Init(); //Initializes Transceiver
+void ESP_Now_TransceiverInit(); //Initializes Transceiver
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len);
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
 
 //Send data commands
-void ESP_NowTransmitDataController(); //Transmits the controller data
-void ESP_NowTransmitData(uint32_t type);
+void ESP_Now_TransmitDataController(); //Transmits the controller data
+void ESP_Now_TransmitData(uint32_t type);
 
-void ESP_NowPrintControllerData();
-bool ESP_NowSanitizeController(controller_data_t &newData, const controller_data_t &prevData); //Checks whether the L and R values were actually changed, as well as removing any controller deadzone
+void ESP_Now_PrintControllerData();
+void ESP_Now_PrintUltrasonicData();
 
 void ESP_Now_Wait();
 
@@ -61,10 +61,11 @@ void ESP_Now_Wait();
 /*                 HUB FUNCTIONS                */
 #if TRANSCEIVER_BUILD == HUB_BUILD
 //Controller wrapper functions
-void ESP_Now_Hub_Pair_Controller(); //Checks whether a controller is connected
-void ESP_Now_Hub_Check_Controller_Status(); //Checks whether a controller has new data 
-void ESP_NowControllerInit(); //Initializes the controller pairing
-void ESP_NowGetController(); //Updates the global controller if there is an actual change and transmit the data
+void ESP_Now_PairController(); //Checks whether a controller is connected
+void ESP_Now_CheckControllerStatus(); //Checks whether a controller has new data 
+void ESP_Now_ControllerInit(); //Initializes the controller pairing
+void ESP_Now_GetController(); //Updates the global controller if there is an actual change and transmit the data
+bool ESP_Now_SanitizeController(controller_data_t &newData, const controller_data_t &prevData); //Checks whether the L and R values were actually changed, as well as removing any controller deadzone
 #endif
 
 

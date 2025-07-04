@@ -11,6 +11,8 @@
 void onControllerConnect(ControllerPtr newController);
 void onControllerDisconnect(ControllerPtr newController);
 
+/* Controller Wrapper Functions for BP32 */
+bool updateController(); //calls BP32.update()
 bool isControllerPaired();  //returns true if controller is paired
 bool hasControllerData(); //returns true if controller has new data
 bool getControllerStatus(); //returns true if controller exists, has new data, and is paired

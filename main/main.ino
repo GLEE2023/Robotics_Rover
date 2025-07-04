@@ -21,16 +21,16 @@ void loop() {
 
 #if TRANSCEIVER_BUILD == HUB_BUILD
   if(events & CONTROLLER_INIT_EVENT){
-    ESP_NowControllerInit();
+    ESP_Now_ControllerInit();
   }
   else if(events & CONTROLLER_CHECK_PAIRING_EVENT){
-   ESP_Now_Hub_Pair_Controller();
+   ESP_Now_PairController();
    delay(100);
   }
   else /* Else required so we don't trigger two events in the same loop */ 
 #endif
   if(events & ESP_NOW_INIT_EVENT){
-    ESP_Now_Transceiver_Init();
+    ESP_Now_TransceiverInit();
   }
   else if(events & ESP_NOW_WAIT_EVENT){
     ESP_Now_Wait();

@@ -1,12 +1,13 @@
 #include "Controller.hpp"
 
 #if TRANSCEIVER_BUILD == HUB_BUILD //Need to do this since Arduino links all cpp files at the same time so we need to noto compile Controller if we are doing the rover build
+
 ControllerPtr myController;
 
 void onControllerConnect(ControllerPtr newController) {
   if(myController == nullptr){
     myController = newController;
-    Serial.printf("Connect is successfully paired\n");
+    Serial.printf("Controller is successfully paired\n");
     ControllerProperties properties = newController->getProperties();
     Serial.printf("Controller model: %s, VID=0x%04x, PID=0x%04x\n", newController->getModelName().c_str(), properties.vendor_id, properties.product_id);
   }
@@ -70,7 +71,6 @@ bool hasControllerData(){
 bool getControllerStatus(){
   return hasControllerData() && isControllerPaired();
 }
-
 
 ControllerPtr getController(){
   if(myController){//checks whether it exists
