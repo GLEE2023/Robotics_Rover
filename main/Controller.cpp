@@ -51,10 +51,16 @@ void controllerInit() {
   // By default, it is disabled.
   BP32.enableVirtualDevice(false);
 }
+bool updateController(){
+  if(BP32.update()){
+    return true;
+  }
+  return false;
+}
 
 bool isControllerPaired(){
   if(myController){
-    BP32.update(); //Update to check if controller is paired
+    updateController(); //Update to check if controller is paired
     return myController->isConnected();
   }
   return false;
@@ -62,7 +68,7 @@ bool isControllerPaired(){
 
 bool hasControllerData(){
   if(myController){
-    BP32.update(); //Update to look for new data
+    updateController(); //Update to look for new data
     return myController->hasData(); //returns whether controller has new data
   }
   return false;

@@ -81,7 +81,9 @@ void ESP_Now_CheckControllerStatus(); //Checks whether a controller has new data
 void ESP_Now_ControllerInit(); //Initializes the controller pairing
 void ESP_Now_GetController(); //Updates the global controller if there is an actual change and transmit the data
 bool ESP_Now_SanitizeController(controller_data_t &newData, const controller_data_t &prevData); //Checks whether the L and R values were actually changed, as well as removing any controller deadzone
+#else if TRANSCEIVER_BUILD == ROVER_BUILD
+/* ROVER FUNCTIONS                  */
+void ESP_Now_GetUltrasonicData();
 #endif
-
 
 #endif

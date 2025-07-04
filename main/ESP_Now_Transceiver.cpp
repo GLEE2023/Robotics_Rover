@@ -154,7 +154,7 @@ void  ESP_Now_TransmitDataController(){
 
 void ESP_Now_PrintUltrasonicData(){
   for(int i = 0; i < ULTRASONIC_COUNT; i++){
-    Serial.printf("Ultrasonic sensor #%d, distance: \n", i, ultrasonicData.distance[i]);
+    Serial.printf("Ultrasonic sensor #%d, distance: %d\n", i, ultrasonicData.distance[i]);
   }
 }
 
@@ -185,13 +185,13 @@ void ESP_Now_ControllerInit(){
   Serial.printf("Initializing controller:\n");
   removeSchedulerEvent(CONTROLLER_INIT_EVENT);
   controllerInit();
-  delay(1000); //make sure the controller actually gets initialized
-  ESP_Now_PairController();
+  Serial.printf("Finished Initializing controller\n");
+  Serial.printf("Attempting to find controller\n");
   addSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
 }
 
 void ESP_Now_PairController(){
-  if(isControllerPaired()){ //Checks if controller is paired and if it is then change events
+  if(updateController()){ //Checks if controller is paired and if it is then change events
     removeSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
     addSchedulerEvent(ESP_NOW_INIT_EVENT);
   } 
@@ -267,6 +267,15 @@ void ESP_Now_Wait(){
 
 void ESP_Now_Wait(){
   // Serial.printf("Waiting for data\n");
+  ESP_Now_GetUltrasonicData();
+  delay(1000);
+}
+
+void ESP_Now_GetUltrasonicData(){
+  for(int i=0; i < ULTRASONIC_COUNT; i++){
+    ultrasonicData.distance[i] = i;
+  }
+  ESP_Now_TransmitData(DATA_TRANSMIT_TYPE_ULTRASONIC);
 }
 
 #endif
