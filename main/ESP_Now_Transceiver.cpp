@@ -1,16 +1,5 @@
 #include "ESP_Now_Transceiver.hpp"
 
-#define PEER_ADDRESS_SIZE 6 //numbers of elements which is 6 bytes
-
-//Packet transmission type
-#define DATA_TRANSMIT_TYPE_CONTROLLER 0
-#define DATA_TRANSMIT_TYPE_ULTRASONIC 1
-
-//Reduce unnecessary sends so santize the controller data
-#define SANTIZATION_DEADZONE              10
-#define SANTIZATION_CHANGED(new, old)     (abs(abs((new))-abs((old))) > SANTIZATION_DEADZONE) //macro to detect if there is a significant change
-
-#define WIFI_CHANNEL                  0
 
 #if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
   static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address
@@ -44,7 +33,6 @@ void ESP_Now_TransceiverInit(){
   //Disable power saving mode for the rover, unfortunately this cant be done on the hub since we require this mode if we are using both WiFi and Bluetooth
     esp_wifi_set_ps(WIFI_PS_NONE);
   #endif
-    
 
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK) {
@@ -118,6 +106,9 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
 
 void ESP_Now_TransmitData(uint32_t type){
   switch (type) {
+    case DATA_TRANSMIT_TYPE_ULTRASONIC:
+      ESP_Now_TransmitDataUltrasonic();
+      break;
     case DATA_TRANSMIT_TYPE_CONTROLLER:
       ESP_Now_TransmitDataController();
       break;
@@ -125,6 +116,23 @@ void ESP_Now_TransmitData(uint32_t type){
       Serial.printf("No valid type was inputted\n");
       break;
   }
+}
+
+void ESP_Now_TransmitDataUltrasonic(){
+  dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_ULTRASONIC;
+  /*Note that dataToSend.controller_data is not used so consider the data to be garbage and do not use it
+  In the future the received data could be transmitted back for error detection*/
+  dataToSend.ultrasonic_data = ultrasonicData;
+
+  /* DEBUG FOR THE STATUS OF THE SEND */
+  esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
+  Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
+  
+  ESP_Now_PrintUltrasonicData(); //Data that is going to be sent out
+  
+  Serial.printf("Attempting to send controller data to address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+              peerAddress[0], peerAddress[1], peerAddress[2],
+              peerAddress[3], peerAddress[4], peerAddress[5]);
 }
 
 void  ESP_Now_TransmitDataController(){
@@ -136,13 +144,18 @@ void  ESP_Now_TransmitDataController(){
   esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
   Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
 
+  ESP_Now_PrintControllerData(); //Data that is going to be sent out
+
   Serial.printf("Attempting to send controller data to address: %02X:%02X:%02X:%02X:%02X:%02X\n",
               peerAddress[0], peerAddress[1], peerAddress[2],
               peerAddress[3], peerAddress[4], peerAddress[5]);  
 }
 
-ESP_Now_PrintUltrasonicData(){
-  for(auto i : )
+
+void ESP_Now_PrintUltrasonicData(){
+  for(int i = 0; i < ULTRASONIC_COUNT; i++){
+    Serial.printf("Ultrasonic sensor #%d, distance: \n", i, ultrasonicData.distance[i]);
+  }
 }
 
 void ESP_Now_PrintControllerData(){
@@ -215,7 +228,6 @@ void ESP_Now_GetController(){
   if(ESP_Now_SanitizeController(newControllerData, controllerData)){
     //if the controller data is different enough from the previous data then we will update the global controllerData
     controllerData = newControllerData; //update controllerData to the new data
-    ESP_Now_PrintControllerData(); 
     ESP_Now_TransmitData(DATA_TRANSMIT_TYPE_CONTROLLER);
     delay(200);
   }
