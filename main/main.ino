@@ -1,5 +1,7 @@
 #include "Scheduler.hpp"
 #include "ESP_Now_Transceiver.hpp"
+   #include <esp32-hal-timer.h>
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -36,3 +38,5 @@ void loop() {
     ESP_Now_Wait();
   }
 }
+
+timerAttachInterrupt();

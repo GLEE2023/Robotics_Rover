@@ -25,9 +25,8 @@
 #define SANTIZATION_DEADZONE              10
 #define SANTIZATION_CHANGED(new, old)     (abs(abs((new))-abs((old))) > SANTIZATION_DEADZONE) //macro to detect if there is a significant change
 
-#define WIFI_CHANNEL                  0
-
-#define ULTRASONIC_COUNT       4
+#define WIFI_CHANNEL                      0
+#define ULTRASONIC_COUNT                  4
 
 typedef struct controller_data_t{
   uint8_t dpad;
@@ -84,6 +83,7 @@ bool ESP_Now_SanitizeController(controller_data_t &newData, const controller_dat
 #else if TRANSCEIVER_BUILD == ROVER_BUILD
 /* ROVER FUNCTIONS                  */
 void ESP_Now_GetUltrasonicData();
+void ESP_Now_ParseControllerData();
 #endif
 
 #endif
