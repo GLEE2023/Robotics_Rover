@@ -15,6 +15,7 @@
 #define MOTOR_RIGHT_DIR_PIN  23
 
 #define MOTOR_COUNT          4
+#define PULSE_PER_REVOLUTION 24
 
 #define MOTOR_ONE            0
 #define MOTOR_TWO            1
@@ -25,7 +26,8 @@
 
 static uint32_t desiredSpeed;
 
-volatile motorPulseInterval
+volatile uin32_t motorPulsePeriod[MOTOR_COUNT] = {0};
+volatile uint32_t motorLastPulseTime[MOTOR_COUNT] = {0};
 
 volatile uint32_t motorActualRPM[MOTOR_COUNT] = {0};
 
@@ -38,7 +40,7 @@ void matchDesiredSpeed(uint32_t )
 
 // void getActualSpeed(uint32_t motorNUM);
 
-uint32_t getPulseInterval(uint32_t motorNUM); //Disables interrupts and returns the pulse, this is a safer way to get the pulses rather than just reading from the global variable
+uint32_t getPulsePeriod(uint32_t motorNUM); //Disables interrupts and returns the period, this is a safer way to get the pulses rather than just reading from the global variable
 
 void IRAM_ATTR motorOneEncoderISR();
 void IRAM_ATTR motorTwoEncoderISR();

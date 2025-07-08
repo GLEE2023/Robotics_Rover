@@ -17,6 +17,12 @@ void motorInit(){
   pinMode(MOTOR_LEFT_DIR_PIN, OUTPUT);
   pinMode(MOTOR_RIGHT_DIR_PIN, OUTPUT);
 
+
+  /* Creates ISR for encoders */
+  attachInterrupt(digitalPinToInterrupt(MOTOR_ONE_ENC_PIN), motorOneEncoderISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(MOTOR_ONE_ENC_PIN), motorOneEncoderISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(MOTOR_ONE_ENC_PIN), motorOneEncoderISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(MOTOR_ONE_ENC_PIN), motorOneEncoderISR, RISING);
 }
 
 
@@ -27,3 +33,15 @@ uint32_t getPulseInterval(uint32_t motorNUM){
   return temp;
 }
 
+
+
+void IRAM_ATTR motorOneEncoderISR(){
+  uint32_t currentTime = micros();
+  motorPulsePeriod[MOTOR_ONE]
+}
+void IRAM_ATTR motorTwoEncoderISR();
+void IRAM_ATTR motorThreeEncoderISR();
+
+void IRAM_ATTR motorFourEncoderISR(){
+
+}
