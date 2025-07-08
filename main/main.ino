@@ -1,6 +1,6 @@
 #include "Scheduler.hpp"
 #include "ESP_Now_Transceiver.hpp"
-   #include <esp32-hal-timer.h>
+  //  #include <esp32-hal-timer.h>
 
 
 void setup() {
@@ -39,4 +39,4 @@ void loop() {
   }
 }
 
-timerAttachInterrupt();
+// timerAttachInterrupt();

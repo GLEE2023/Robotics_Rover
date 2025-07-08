@@ -21,18 +21,28 @@
 #define MOTOR_THREE          2
 #define MOTOR_FOUR           3
 
-static uint8_t desiredSpeed;
 
-volatile uint32_t motorActualSpeed[MOTOR_COUNT];
-volatile uint32_t motorOneActualSpeed;
-volatile uint32_t motorTwoActualSpeed;
-volatile uint32_t motorThreeActualSpeed;
-volatile uint32_t motorFourActualSpeed;
+
+static uint32_t desiredSpeed;
+
+volatile motorPulseInterval
+
+volatile uint32_t motorActualRPM[MOTOR_COUNT] = {0};
+
 
 void motorInit();
 
-void updateDesiredSpeed(uint8_t newSpeed);
+void updateDesiredRPM(uint32_t newSpeed); //Updates the global desired speed for each motor (this happens through the controller from ESP-NOW)
 
-void matchDesiredSpeed
+void matchDesiredSpeed(uint32_t )
+
+// void getActualSpeed(uint32_t motorNUM);
+
+uint32_t getPulseInterval(uint32_t motorNUM); //Disables interrupts and returns the pulse, this is a safer way to get the pulses rather than just reading from the global variable
+
+void IRAM_ATTR motorOneEncoderISR();
+void IRAM_ATTR motorTwoEncoderISR();
+void IRAM_ATTR motorThreeEncoderISR();
+void IRAM_ATTR motorFourEncoderISR();
 
 #endif
