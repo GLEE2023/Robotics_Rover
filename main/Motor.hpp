@@ -28,6 +28,11 @@
 #define WHEEL_CIRCUMFERENCE  (PI * WHEEL_DIAMETER)
 #define MAX_VOLTAGE          3.3
 
+#define FORWARDS             0
+#define BACKWARDS            1 
+#define INCREASE_SPEED             1
+#define DECREASE_SPEED            -1
+
 #define RPM_FROM_FREQ(frequency)          ( (frequency * SECONDS_PER_MINUTE) / MICROS_PER_SECOND )
 #define VELOCITY_FROM_RPM(rpm)            ( (WHEEL_CIRCUMFERENCE * rpm) / SECONDS_PER_MINUTE ) /* returns velocity in inches/second */
 
@@ -39,7 +44,7 @@
 
 void motorInit(); //Initializes motors
 
-void updateDesiredRPM(float newRPM); //Updates the global desired speed for each motor (this happens through the controller from ESP-NOW), the user will be inputting a desired RPM, which the interface displays as a velocity but that would be converted in code
+void updateDesiredRPM(int change); //Updates the global desired speed for each motor (this happens through the controller from ESP-NOW), the user will be inputting a desired RPM, which the interface displays as a velocity but that would be converted in code
 void matchDesiredRPM(); //Updates each motors speed to be the global desired speed, can incorporate a PID in the future
 
 uint32_t calculateRPM(uint32_t motorNum); //finds the RPM and returns it

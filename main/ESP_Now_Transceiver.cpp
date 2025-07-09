@@ -6,6 +6,7 @@
   static ControllerPtr myCurrentController;
 #else
   static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
+  static uint8_t speed = 0;
 #endif
 static  esp_now_peer_info_t peerInfo;
 
@@ -292,22 +293,38 @@ void ESP_Now_GetUltrasonicData(){
 }
 
 void ESP_Now_ParseControllerData(){
-  controller_data_t recvControllerData = controllerData; /*temp variable in the event that controllerData changes on us*/
-  if(recvControllerData.thumbL > 0){
+  static controller_data_t prevControllerData = {}; //previous controller data from last transmission
+  controller_data_t recvControllerData = controllerData; /*temp variable in the event that controllerData changes on from ESP-NOW*/
+
+  if(recvControllerData.thumbL > 50){
     motorDriveLeft(FORWARDS);
   }
-  else{ /*recvControllerData.thumbR < 0*/
+  else if(recvControllerData.thumbR < -50){ 
     motorDriveLeft(BACKWARDS);
   }
-  if(recvControllerData.thumbR > 0){
+
+  if(recvControllerData.thumbR > 50){
     motorDriveRight(FORWARDS);
   }
-  else{ /*recvControllerData.thumbR < 0*/
+  else if (recvControllerData.thumbR < -50){
     motorDriveRight(BACKWARDS);
   }
-  if(recvControllerData.r1 == 1){
-    
+
+  if(prevControllerData.l1 != recvControllerData.l1){//if the controller data 
+    if(recvControllerData.l1 == 1){
+      updateDesiredRPM(DECREASE_SPEED);
+    }
   }
+
+  if(prevControllerData.r1 != recvControllerData.r1){//if the controller data 
+    if(recvControllerData.r1 == 1){
+      updateDesiredRPM(INCREASE_SPEED);
+    }
+  }
+
+
+  //Update prev controller
+  prevControllerData = recvControllerData;
 }
 
 #endif

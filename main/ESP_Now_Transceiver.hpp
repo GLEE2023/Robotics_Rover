@@ -11,8 +11,10 @@
   FALSE IF WE WANT TO USE WIFI CHANNEL OTHER THAN 0 THE CODE MUST CHANGE AND WE MUST USE THE FOLLOW WHEN INITIALIZING
   esp_wifi_set_channel(WIFI_CHANNEL, WIFI_SECOND_CHAN_NONE); */
   #include "Motor.hpp"
-  #define FORWARDS             0
-  #define BACKWARDS            1
+  // #define FORWARDS             0
+  // #define BACKWARDS            1
+  // #define INCREASE_SPEED             1
+  // #define DECREASE_SPEED            -1
 #else
   #include "Controller.hpp" //Only hub needs to use the controller functions
 #endif
@@ -88,7 +90,6 @@ bool ESP_Now_SanitizeController(controller_data_t &newData, const controller_dat
 void ESP_Now_MotorInit();
 void ESP_Now_GetUltrasonicData();
 void ESP_Now_ParseControllerData();
-void ESP_Now_IncreaseDesiredSpeed(); 
 #endif
 
 #endif

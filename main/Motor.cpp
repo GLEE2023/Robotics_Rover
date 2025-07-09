@@ -2,14 +2,12 @@
 
 const uint8_t motorPWMPin[MOTOR_COUNT] = {MOTOR_ONE_PWM_PIN, MOTOR_TWO_PWM_PIN, MOTOR_THREE_PWM_PIN, MOTOR_FOUR_PWM_PIN};
 
-
 volatile uint32_t motorPulsePeriod[MOTOR_COUNT] = {0}; //Time between last encoder pulse and current encoder plse
 volatile uint32_t motorLastPulseTime[MOTOR_COUNT] = {0}; 
 volatile float desiredRPM = 0;
 
 float motorActualRPM[MOTOR_COUNT] = {0}; //Actual RPM calculated from the encoder pulses
 float motorOutputVoltage[MOTOR_COUNT] = {0}; //Outputted PWM to get the desired RPM
-
 
 void motorInit(){
 
@@ -58,8 +56,9 @@ void motorDrive(uint8_t side, uint8_t dir){
   }
 }
 
-void updateDesiredRPM(float newSpeed){
-  desiredRPM = newSpeed;
+void updateDesiredRPM(int change){
+  desiredRPM += change;
+  desiredRPM = constrain(desiredRPM, 0, MAX_VOLTAGE);
 }
 
 void matchDesiredRPM(){
@@ -95,11 +94,13 @@ void IRAM_ATTR motorOneEncoderISR(){
   motorPulsePeriod[MOTOR_ONE] = currentTime - motorLastPulseTime[MOTOR_ONE];
   motorLastPulseTime[MOTOR_ONE] = currentTime;
 }
+
 void IRAM_ATTR motorTwoEncoderISR(){
   uint32_t currentTime = micros();
   motorPulsePeriod[MOTOR_TWO] = currentTime - motorLastPulseTime[MOTOR_TWO];
   motorLastPulseTime[MOTOR_TWO] = currentTime;
 }
+
 void IRAM_ATTR motorThreeEncoderISR(){
   uint32_t currentTime = micros();
   motorPulsePeriod[MOTOR_THREE] = currentTime - motorLastPulseTime[MOTOR_THREE];
