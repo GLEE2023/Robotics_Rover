@@ -10,6 +10,7 @@
   #include <esp_wifi.h> //If its the rover we need to power saving mode but the hub doesn't so we don't need to include this library
   //FALSE IF WE WANT TO USE WIFI CHANNEL OTHER THAN 0 THE CODE MUST CHANGE AND WE MUST USE THE FOLLOW WHEN INITIALIZING
   //   esp_wifi_set_channel(WIFI_CHANNEL, WIFI_SECOND_CHAN_NONE); 
+  #include "Motor.hpp"
 #else
   #include "Controller.hpp" //Only hub needs to use the controller functions
 #endif
