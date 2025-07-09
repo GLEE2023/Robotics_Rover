@@ -22,7 +22,7 @@
 
 #define MOTOR_COUNT          4
 #define PULSE_PER_REVOLUTION 24
-#define MICROS_PER_SECOND    1000000
+#define MICROS_PER_SECOND    1e6
 #define SECONDS_PER_MINUTE   60
 #define WHEEL_DIAMETER       5.5 /* this is in inches */
 #define WHEEL_CIRCUMFERENCE  (PI * WHEEL_DIAMETER)

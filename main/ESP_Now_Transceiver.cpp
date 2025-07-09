@@ -308,7 +308,7 @@ void ESP_Now_ParseControllerData(){
     motorDriveRight(BACKWARDS);
   }
   else if (recvControllerData.axisRY < -50){
-    motorDriveRight(FOWARDS);
+    motorDriveRight(FORWARDS);
   }
 
   if(prevControllerData.l2 != recvControllerData.l2){//if the controller data 

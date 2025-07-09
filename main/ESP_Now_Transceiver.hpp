@@ -71,7 +71,7 @@ void ESP_Now_TransmitDataController(); //Transmits the controller data
 void ESP_Now_PrintUltrasonicData();
 void ESP_Now_PrintControllerData();
 
-void ESP_Now_Wait();
+void ESP_Now_Wait(); //Can be compiled as two different functions
 
 /*                 HUB FUNCTIONS                */
 #if TRANSCEIVER_BUILD == HUB_BUILD
