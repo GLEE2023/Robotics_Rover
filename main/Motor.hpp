@@ -16,6 +16,10 @@
 #define MOTOR_LEFT_DIR_PIN   22
 #define MOTOR_RIGHT_DIR_PIN  23
 
+
+#define LEFT_SIDE            0
+#define RIGHT_SIDE           1
+
 #define MOTOR_COUNT          4
 #define PULSE_PER_REVOLUTION 24
 #define MICROS_PER_SECOND    1000000
@@ -33,25 +37,17 @@
 #define MOTOR_FOUR           3
 
 
-volatile float desiredRPM;
-
-const uint8_t motorPWMPIN[MOTOR_COUNT] = {MOTOR_ONE_PWM_PIN, MOTOR_TWO_PWM_PIN, MOTOR_THREE_PWM_PIN, MOTOR_FOUR_PWM_PIN};
-volatile uint32_t motorPulsePeriod[MOTOR_COUNT] = {0}; //Time between last encoder pulse and current encoder plse
-volatile uint32_t motorLastPulseTime[MOTOR_COUNT] = {0}; 
-
-float motorActualRPM[MOTOR_COUNT] = {0}; //Actual RPM calculated from the encoder pulses
-float motorOutputVoltage[MOTOR_COUNT] = {0}; //Outputted PWM to get the desired RPM
-
-
 void motorInit(); //Initializes motors
 
 void updateDesiredRPM(float newRPM); //Updates the global desired speed for each motor (this happens through the controller from ESP-NOW), the user will be inputting a desired RPM, which the interface displays as a velocity but that would be converted in code
-
 void matchDesiredRPM(); //Updates each motors speed to be the global desired speed, can incorporate a PID in the future
 
 uint32_t calculateRPM(uint32_t motorNum); //finds the RPM and returns it
-
 uint32_t getPulsePeriod(uint32_t motorNum); //Disables interrupts and returns the period, this is a safer way to get the pulses rather than just reading from the global variable
+
+void motorDriveLeft(uint8_t dir);
+void motorDriveRight(uint8_t dir);
+void motorDrive(uint8_t side, uint8_t dir);
 
 void IRAM_ATTR motorOneEncoderISR();
 void IRAM_ATTR motorTwoEncoderISR();

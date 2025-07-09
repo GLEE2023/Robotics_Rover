@@ -15,6 +15,8 @@ static data_transmit_t dataToSend;
 static controller_data_t controllerData;
 static ultrasonic_data_t ultrasonicData;
 
+static bool newControllerData = false;
+
 void ESP_Now_TransceiverInit(){
 /*
   Rui Santos & Sara Santos - Random Nerd Tutorials
@@ -80,6 +82,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
   }
   else if(receivedData.dataTransmitType == DATA_TRANSMIT_TYPE_CONTROLLER){
     controllerData = receivedData.controller_data; //Updates the controller data
+    newControllerData = true;
     ESP_Now_PrintControllerData();
   }
   else{
@@ -265,10 +268,20 @@ void ESP_Now_Wait(){
 
 #else /* Rover Transceiver Functions */
 
+void ESP_Now_MotorInit(){
+  removeSchedulerEvent(MOTOR_INIT_EVENT);
+  motorInit();
+  addSchedulerEvent(ESP_NOW_INIT_EVENT);//change to ultrasonic init event and remember HDM
+}
+
 void ESP_Now_Wait(){
   // Serial.printf("Waiting for data\n");
-  ESP_Now_GetUltrasonicData();
-  delay(1000);
+  // ESP_Now_GetUltrasonicData();
+  // delay(1000);
+    if(newControllerData == true){
+      newControllerData = false;
+      ESP_Now_ParseControllerData();
+    }
 }
 
 void ESP_Now_GetUltrasonicData(){
@@ -276,6 +289,25 @@ void ESP_Now_GetUltrasonicData(){
     ultrasonicData.distance[i] = i;
   }
   ESP_Now_TransmitData(DATA_TRANSMIT_TYPE_ULTRASONIC);
+}
+
+void ESP_Now_ParseControllerData(){
+  controller_data_t recvControllerData = controllerData; /*temp variable in the event that controllerData changes on us*/
+  if(recvControllerData.thumbL > 0){
+    motorDriveLeft(FORWARDS);
+  }
+  else{ /*recvControllerData.thumbR < 0*/
+    motorDriveLeft(BACKWARDS);
+  }
+  if(recvControllerData.thumbR > 0){
+    motorDriveRight(FORWARDS);
+  }
+  else{ /*recvControllerData.thumbR < 0*/
+    motorDriveRight(BACKWARDS);
+  }
+  if(recvControllerData.r1 == 1){
+    
+  }
 }
 
 #endif

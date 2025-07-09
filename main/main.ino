@@ -11,8 +11,7 @@ void setup() {
   #if TRANSCEIVER_BUILD == HUB_BUILD
     addSchedulerEvent(CONTROLLER_INIT_EVENT);
   #else
-  //
-    addSchedulerEvent(ESP_NOW_INIT_EVENT);
+    addSchedulerEvent(MOTOR_INIT_EVENT);
   #endif
 }
 
@@ -29,7 +28,11 @@ void loop() {
    ESP_Now_PairController();
    delay(100);
   }
-  else /* Else required so we don't trigger two events in the same loop */ 
+  // else /* Else required so we don't trigger two events in the same loop */ 
+#else /*TRANSCEIVER_BUILD == ROVER_BUILD */
+  if(events & MOTOR_INIT_EVENT){
+    ESP_Now_MotorInit();
+  }
 #endif
   if(events & ESP_NOW_INIT_EVENT){
     ESP_Now_TransceiverInit();
