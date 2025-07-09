@@ -4,7 +4,7 @@ const uint8_t motorPWMPin[MOTOR_COUNT] = {MOTOR_ONE_PWM_PIN, MOTOR_TWO_PWM_PIN, 
 
 volatile uint32_t motorPulsePeriod[MOTOR_COUNT] = {0}; //Time between last encoder pulse and current encoder plse
 volatile uint32_t motorLastPulseTime[MOTOR_COUNT] = {0}; 
-volatile float desiredRPM = 0;
+volatile int desiredRPM = 0;
 
 float motorActualRPM[MOTOR_COUNT] = {0}; //Actual RPM calculated from the encoder pulses
 float motorOutputVoltage[MOTOR_COUNT] = {0}; //Outputted PWM to get the desired RPM
@@ -57,8 +57,9 @@ void motorDrive(uint8_t side, uint8_t dir){
 }
 
 void updateDesiredRPM(int change){
-  desiredRPM += change;
-  desiredRPM = constrain(desiredRPM, 0, MAX_VOLTAGE);
+  desiredRPM += 5*change;
+  desiredRPM = constrain(desiredRPM, 0, 30);
+  Serial.printf("Changing speed by %d\n New speed is %d\n", 5*change, desiredRPM);
 }
 
 void matchDesiredRPM(){

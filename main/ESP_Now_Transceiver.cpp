@@ -6,7 +6,6 @@
   static ControllerPtr myCurrentController;
 #else
   static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
-  static uint8_t speed = 0;
 #endif
 static  esp_now_peer_info_t peerInfo;
 
@@ -75,6 +74,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
   snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
   mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   Serial.print(macStr);
+  Serial.printf("\n");
   memcpy(&receivedData, incomingData, sizeof(receivedData));
 
   if(receivedData.dataTransmitType == DATA_TRANSMIT_TYPE_ULTRASONIC){
@@ -283,6 +283,7 @@ void ESP_Now_Wait(){
       newControllerData = false;
       ESP_Now_ParseControllerData();
     }
+    matchDesiredRPM();
 }
 
 void ESP_Now_GetUltrasonicData(){
@@ -296,32 +297,31 @@ void ESP_Now_ParseControllerData(){
   static controller_data_t prevControllerData = {}; //previous controller data from last transmission
   controller_data_t recvControllerData = controllerData; /*temp variable in the event that controllerData changes on from ESP-NOW*/
 
-  if(recvControllerData.thumbL > 50){
-    motorDriveLeft(FORWARDS);
-  }
-  else if(recvControllerData.thumbR < -50){ 
+  if(recvControllerData.axisY > 50){
     motorDriveLeft(BACKWARDS);
   }
-
-  if(recvControllerData.thumbR > 50){
-    motorDriveRight(FORWARDS);
+  else if(recvControllerData.axisY < -50){ 
+    motorDriveLeft(FORWARDS);
   }
-  else if (recvControllerData.thumbR < -50){
+
+  if(recvControllerData.axisRY > 50){
     motorDriveRight(BACKWARDS);
   }
+  else if (recvControllerData.axisRY < -50){
+    motorDriveRight(FOWARDS);
+  }
 
-  if(prevControllerData.l1 != recvControllerData.l1){//if the controller data 
-    if(recvControllerData.l1 == 1){
+  if(prevControllerData.l2 != recvControllerData.l2){//if the controller data 
+    if(recvControllerData.l2 == 1){
       updateDesiredRPM(DECREASE_SPEED);
     }
   }
 
-  if(prevControllerData.r1 != recvControllerData.r1){//if the controller data 
-    if(recvControllerData.r1 == 1){
+  if(prevControllerData.r2 != recvControllerData.r2){//if the controller data 
+    if(recvControllerData.r2 == 1){
       updateDesiredRPM(INCREASE_SPEED);
     }
   }
-
 
   //Update prev controller
   prevControllerData = recvControllerData;

@@ -11,10 +11,6 @@
   FALSE IF WE WANT TO USE WIFI CHANNEL OTHER THAN 0 THE CODE MUST CHANGE AND WE MUST USE THE FOLLOW WHEN INITIALIZING
   esp_wifi_set_channel(WIFI_CHANNEL, WIFI_SECOND_CHAN_NONE); */
   #include "Motor.hpp"
-  // #define FORWARDS             0
-  // #define BACKWARDS            1
-  // #define INCREASE_SPEED             1
-  // #define DECREASE_SPEED            -1
 #else
   #include "Controller.hpp" //Only hub needs to use the controller functions
 #endif
@@ -27,7 +23,7 @@
 #define DATA_TRANSMIT_TYPE_ULTRASONIC 1
 
 //Reduce unnecessary sends so santize the controller data
-#define SANTIZATION_DEADZONE              10
+#define SANTIZATION_DEADZONE              50
 #define SANTIZATION_CHANGED(new, old)     (abs(abs((new))-abs((old))) > SANTIZATION_DEADZONE) //macro to detect if there is a significant change
 
 #define WIFI_CHANNEL                      0
