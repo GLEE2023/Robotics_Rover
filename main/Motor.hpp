@@ -21,19 +21,23 @@
 #define RIGHT_SIDE           1
 
 #define MOTOR_COUNT          4
-#define PULSE_PER_REVOLUTION 24
+#define PULSES_PER_REVOLUTION 24
 #define MICROS_PER_SECOND    1e6
 #define SECONDS_PER_MINUTE   60
 #define WHEEL_DIAMETER       5.5 /* this is in inches */
+#define GEAR_RATIO           189 /* Note encoder operates before the gear ratio takes effect*/
+#define MAX_WHEEL_RPM        45
+#define MAX_ENC_RPM          (MAX_WHEEL_RPM * GEAR_RATIO)
 #define WHEEL_CIRCUMFERENCE  (PI * WHEEL_DIAMETER)
 #define MAX_VOLTAGE          3.3
+#define RPM_STEP_SIZE        MAX_WHEEL_RPM / 5 /*Want 5 increments of speed*/
 
 #define FORWARDS             0
 #define BACKWARDS            1 
 #define INCREASE_SPEED             1
 #define DECREASE_SPEED            -1
 
-#define RPM_FROM_FREQ(frequency)          ( (frequency * SECONDS_PER_MINUTE) / MICROS_PER_SECOND )
+#define RPM_FROM_FREQ(frequency)          ( (frequency * SECONDS_PER_MINUTE) / PULSES_PER_REVOLUTION )
 #define VELOCITY_FROM_RPM(rpm)            ( (WHEEL_CIRCUMFERENCE * rpm) / SECONDS_PER_MINUTE ) /* returns velocity in inches/second */
 
 #define MOTOR_ONE            0
