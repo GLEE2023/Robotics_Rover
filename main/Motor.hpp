@@ -3,18 +3,18 @@
 
 #include "Arduino.h"
 
-#define MOTOR_ONE_PWM_PIN   21
-#define MOTOR_TWO_PWM_PIN   19
-#define MOTOR_THREE_PWM_PIN 18
-#define MOTOR_FOUR_PWM_PIN  5
+#define MOTOR_ONE_PWM_PIN   22
+#define MOTOR_TWO_PWM_PIN   23
+#define MOTOR_THREE_PWM_PIN 33
+#define MOTOR_FOUR_PWM_PIN  32
 
-#define MOTOR_ONE_ENC_PIN   32
-#define MOTOR_TWO_ENC_PIN   33
-#define MOTOR_THREE_ENC_PIN 23
-#define MOTOR_FOUR_ENC_PIN  25
+#define MOTOR_ONE_ENC_PIN   18
+#define MOTOR_TWO_ENC_PIN   19
+#define MOTOR_THREE_ENC_PIN 25
+#define MOTOR_FOUR_ENC_PIN  26
 
-#define MOTOR_LEFT_DIR_PIN   22
-#define MOTOR_RIGHT_DIR_PIN  23
+#define MOTOR_LEFT_DIR_PIN   21
+#define MOTOR_RIGHT_DIR_PIN  27
 
 
 #define LEFT_SIDE            0

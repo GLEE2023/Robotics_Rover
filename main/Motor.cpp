@@ -66,7 +66,7 @@ void updateDesiredRPM(int change){
 }
 
 void matchDesiredRPM(){
-  for(int i = 0; i<1/*MOTOR_COUNT*/; i++){//CHANGE TO MOTOR COUNT
+  for(int i = 0; i<MOTOR_COUNT; i++){//CHANGE TO MOTOR COUNT
 
 
 
