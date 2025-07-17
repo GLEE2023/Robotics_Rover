@@ -3,10 +3,14 @@
 
 #if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
  // static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address
-    static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x4f, 0xD9, 0x10}; //Rover MAC Address
+//  6c:c8:40:87:63:34
+//6c:c8:40:86:42:24
+  static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x4f, 0xD9, 0x10}; //Rover MAC Address
   static ControllerPtr myCurrentController;
 #else
-  static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
+  // static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
+  static uint8_t peerAddress[]   = {0x6C, 0xC8, 0x40, 0x86, 0x42, 0x24}; //Hub MAC Address
+
 #endif
 static  esp_now_peer_info_t peerInfo;
 
@@ -78,15 +82,18 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len){
   Serial.printf("\n");
   memcpy(&receivedData, incomingData, sizeof(receivedData));
 
+#if TRANSCEIVER_BUILD == HUB_BUILD
   if(receivedData.dataTransmitType == DATA_TRANSMIT_TYPE_ULTRASONIC){
     ultrasonicData = receivedData.ultrasonic_data;
     ESP_Now_PrintUltrasonicData();
   }
-  else if(receivedData.dataTransmitType == DATA_TRANSMIT_TYPE_CONTROLLER){
+#elif TRANSCEIVER_BUILD == ROVER_BUILD
+  if(receivedData.dataTransmitType == DATA_TRANSMIT_TYPE_CONTROLLER){
     controllerData = receivedData.controller_data; //Updates the controller data
     newControllerData = true;
     ESP_Now_PrintControllerData();
   }
+#endif
   else{
     Serial.printf("Unknown data transmission type\n");
   }
@@ -111,51 +118,20 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
 
 void ESP_Now_TransmitData(uint32_t type){
   switch (type) {
-    case DATA_TRANSMIT_TYPE_ULTRASONIC:
-      ESP_Now_TransmitDataUltrasonic();
-      break;
+#if TRANSCEIVER_BUILD == HUB_BUILD
     case DATA_TRANSMIT_TYPE_CONTROLLER:
       ESP_Now_TransmitDataController();
       break;
+#elif TRANSCEIVER_BUILD == ROVER_BUILD
+    case DATA_TRANSMIT_TYPE_ULTRASONIC:
+      ESP_Now_TransmitDataUltrasonic();
+      break;
+#endif
     default:
       Serial.printf("No valid type was inputted\n");
       break;
   }
 }
-
-void ESP_Now_TransmitDataUltrasonic(){
-  dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_ULTRASONIC;
-  /*Note that dataToSend.controller_data is not used so consider the data to be garbage and do not use it
-  In the future the received data could be transmitted back for error detection*/
-  dataToSend.ultrasonic_data = ultrasonicData;
-
-  /* DEBUG FOR THE STATUS OF THE SEND */
-  esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
-  Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
-  
-  ESP_Now_PrintUltrasonicData(); //Data that is going to be sent out
-  
-  Serial.printf("Attempting to send controller data to address: %02X:%02X:%02X:%02X:%02X:%02X\n",
-              peerAddress[0], peerAddress[1], peerAddress[2],
-              peerAddress[3], peerAddress[4], peerAddress[5]);
-}
-
-void  ESP_Now_TransmitDataController(){
-  dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_CONTROLLER;
-  dataToSend.controller_data = controllerData;
-  //Note that dataToSend.ultrasonic_data is not used so consider the data to be garbage and do not use it
-  
-  /* DEBUG FOR THE STATUS OF THE SEND */
-  esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
-  Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
-
-  ESP_Now_PrintControllerData(); //Data that is going to be sent out
-
-  Serial.printf("Attempting to send controller data to address: %02X:%02X:%02X:%02X:%02X:%02X\n",
-              peerAddress[0], peerAddress[1], peerAddress[2],
-              peerAddress[3], peerAddress[4], peerAddress[5]);  
-}
-
 
 void ESP_Now_PrintUltrasonicData(){
   for(int i = 0; i < ULTRASONIC_COUNT; i++){
@@ -193,6 +169,22 @@ void ESP_Now_ControllerInit(){
   Serial.printf("Finished Initializing controller\n");
   Serial.printf("Attempting to find controller\n");
   addSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
+}
+
+void  ESP_Now_TransmitDataController(){
+  dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_CONTROLLER;
+  dataToSend.controller_data = controllerData;
+  //Note that dataToSend.ultrasonic_data is not used so consider the data to be garbage and do not use it
+  
+  /* DEBUG FOR THE STATUS OF THE SEND */
+  esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
+  Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
+
+  ESP_Now_PrintControllerData(); //Data that is going to be sent out
+
+  Serial.printf("Attempting to send controller data to address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+              peerAddress[0], peerAddress[1], peerAddress[2],
+              peerAddress[3], peerAddress[4], peerAddress[5]);  
 }
 
 void ESP_Now_PairController(){
@@ -273,7 +265,31 @@ void ESP_Now_Wait(){
 void ESP_Now_MotorInit(){
   removeSchedulerEvent(MOTOR_INIT_EVENT);
   motorInit();
-  addSchedulerEvent(ESP_NOW_INIT_EVENT);//change to ultrasonic init event and remember HDM
+  addSchedulerEvent(HDM_INIT_EVENT);//change to ultrasonic init event and remember HDM
+}
+
+void ESP_Now_HDMInit(){
+  removeSchedulerEvent(HDM_INIT_EVENT);
+  HDMInit();
+  addSchedulerEvent(ESP_NOW_INIT_EVENT);//change to ultrasonic init event
+}
+
+
+void ESP_Now_TransmitDataUltrasonic(){
+  dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_ULTRASONIC;
+  /*Note that dataToSend.controller_data is not used so consider the data to be garbage and do not use it
+  In the future the received data could be transmitted back for error detection*/
+  dataToSend.ultrasonic_data = ultrasonicData;
+
+  /* DEBUG FOR THE STATUS OF THE SEND */
+  esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
+  Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
+  
+  ESP_Now_PrintUltrasonicData(); //Data that is going to be sent out
+  
+  Serial.printf("Attempting to send controller data to address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+              peerAddress[0], peerAddress[1], peerAddress[2],
+              peerAddress[3], peerAddress[4], peerAddress[5]);
 }
 
 void ESP_Now_Wait(){
@@ -321,6 +337,12 @@ void ESP_Now_ParseControllerData(){
   if(prevControllerData.r2 != recvControllerData.r2){//if the controller data 
     if(recvControllerData.r2 == 1){
       updateDesiredRPM(INCREASE_SPEED);
+    }
+  }
+
+  if(prevControllerData.btnA != recvControllerData.btnA){
+    if(recvControllerData.btnA == 1){
+      HDMSendCommand("A");
     }
   }
 

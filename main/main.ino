@@ -33,8 +33,11 @@ void loop() {
   if(events & MOTOR_INIT_EVENT){
     ESP_Now_MotorInit();
   }
+  else if(events & HDM_INIT_EVENT){
+    ESP_Now_HDMInit();
+  }
 #endif
-  if(events & ESP_NOW_INIT_EVENT){
+  else if(events & ESP_NOW_INIT_EVENT){
     ESP_Now_TransceiverInit();
   }
   else if(events & ESP_NOW_WAIT_EVENT){

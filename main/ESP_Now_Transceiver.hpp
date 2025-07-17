@@ -7,10 +7,12 @@
 #include "Scheduler.hpp"
 
 #if TRANSCEIVER_BUILD == ROVER_BUILD
-  #include <esp_wifi.h> /*If its the rover we need to power saving mode but the hub doesn't so we don't need to include this library
+  #include <esp_wifi.h> 
+  /*If its the rover we need to power saving mode but the hub doesn't so we don't need to include this library
   FALSE IF WE WANT TO USE WIFI CHANNEL OTHER THAN 0 THE CODE MUST CHANGE AND WE MUST USE THE FOLLOW WHEN INITIALIZING
   esp_wifi_set_channel(WIFI_CHANNEL, WIFI_SECOND_CHAN_NONE); */
   #include "Motor.hpp"
+  #include "HDM.hpp"
 #else
   #include "Controller.hpp" //Only hub needs to use the controller functions
 #endif
@@ -65,8 +67,6 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
 
 //Send data commands
 void ESP_Now_TransmitData(uint32_t type);
-void ESP_Now_TransmitDataUltrasonic(); //Transmits the ultrasonic data
-void ESP_Now_TransmitDataController(); //Transmits the controller data
 
 void ESP_Now_PrintUltrasonicData();
 void ESP_Now_PrintControllerData();
@@ -81,11 +81,14 @@ void ESP_Now_PairController(); //Checks whether a controller is connected
 void ESP_Now_CheckControllerStatus(); //Checks whether a controller has new data 
 void ESP_Now_GetController(); //Updates the global controller if there is an actual change and transmit the data
 bool ESP_Now_SanitizeController(controller_data_t &newData, const controller_data_t &prevData); //Checks whether the L and R values were actually changed, as well as removing any controller deadzone
+void ESP_Now_TransmitDataController(); //Transmits the controller data
 #else if TRANSCEIVER_BUILD == ROVER_BUILD
 /*             ROVER FUNCTIONS                  */
 void ESP_Now_MotorInit();
+void ESP_Now_HDMInit();
 void ESP_Now_GetUltrasonicData();
 void ESP_Now_ParseControllerData();
+void ESP_Now_TransmitDataUltrasonic(); //Transmits the ultrasonic data
 #endif
 
 #endif

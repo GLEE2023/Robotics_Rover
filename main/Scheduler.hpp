@@ -6,11 +6,12 @@
 
 #if TRANSCEIVER_BUILD == HUB_BUILD
   #define CONTROLLER_INIT_EVENT           (1 << 0)
+  #define CONTROLLER_CHECK_PAIRING_EVENT  (1 << 1)
 #else
   #define MOTOR_INIT_EVENT                (1 << 0)
+  #define HDM_INIT_EVENT                  (1 << 1)
 #endif
 
-#define CONTROLLER_CHECK_PAIRING_EVENT  (1 << 1)
 #define ESP_NOW_INIT_EVENT              (1 << 2)
 #define ESP_NOW_WAIT_EVENT              (1 << 3)
 
