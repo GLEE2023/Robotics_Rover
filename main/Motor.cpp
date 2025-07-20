@@ -84,7 +84,7 @@ void matchDesiredRPM(){
     /* this logic was given by Frankie Sharman, it can be expanded upon in the future and should be a PID controller 
     It normalizes the error (the stuff on the right) and adds it to the actual (the error could be a positive or negative value)*/
     motorOutputVoltage[i] = constrain(motorOutputVoltage[i], 0, MAX_VOLTAGE); //Sets the output voltage to a minimum of 0 or a max of 3.3
-    Serial.printf("The output voltage for motor %d is: %f\n", i, motorOutputVoltage[i]);
+    // Serial.printf("The output voltage for motor %d is: %f\n", i, motorOutputVoltage[i]);
     analogWrite(motorPWMPin[i], motorOutputVoltage[i] * 77);
   }
 }

@@ -2,14 +2,13 @@
 
 
 #if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
- // static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address
-//  6c:c8:40:87:63:34
-//6c:c8:40:86:42:24
-  static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x4f, 0xD9, 0x10}; //Rover MAC Address
+  // static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address dead
+  // static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x4f, 0xD9, 0x10}; //Rover MAC Address dead
+  static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x86, 0x42, 0x24}; //Rover MAC Address active
   static ControllerPtr myCurrentController;
 #else
   // static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
-  static uint8_t peerAddress[]   = {0x6C, 0xC8, 0x40, 0x86, 0x42, 0x24}; //Hub MAC Address
+  static uint8_t peerAddress[]   = {0x6C, 0xC8, 0x40, 0x87, 0x63, 0x34}; //Hub MAC Address
 
 #endif
 static  esp_now_peer_info_t peerInfo;

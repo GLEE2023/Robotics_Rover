@@ -8,15 +8,16 @@ void HDMInit(){
 
 void HDMSendCommand(String command){
   Serial1.printf("%s", command); //sends the desired command
-  delay(100); //wait 0.1 seconds
+  delay(2000); //wait 0.1 seconds
   HDMStatus(); //Displays to user whether command successfully sent
 }
 
 void HDMStatus(){
   if(Serial1.available()){//Checks if there is new data 
-    String status = Serial1.readStringUntil('\n'); //Reads data until a new line
-    // Serial.println(received); 
-    if(status == "Successful"){
+    String status = Serial1.readString(); //Reads data until a new line
+    status.trim();
+    Serial.println(status); 
+    if(status == "S"){
       Serial.printf("HDM command delivery: SUCCESS\n");
     }
     else{
