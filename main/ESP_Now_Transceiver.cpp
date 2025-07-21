@@ -328,7 +328,6 @@ void ESP_Now_ParseControllerData(){
   else if(recvControllerData.axisY < -50){ 
     motorDriveLeft(FORWARDS);
   }
-
   if(recvControllerData.axisRY > 50){
     motorDriveRight(BACKWARDS);
   }
@@ -336,21 +335,37 @@ void ESP_Now_ParseControllerData(){
     motorDriveRight(FORWARDS);
   }
 
-  if(prevControllerData.l2 != recvControllerData.l2){//if the controller data 
+  if(prevControllerData.l1 != recvControllerData.l1){//Prevents triggering twice (on trigger and release)
+    if(recvControllerData.l1 == 1){
+      updateDesiredRPMLeft(INCREASE_SPEED);
+    }
+  }
+  if(prevControllerData.l2 != recvControllerData.l2){
     if(recvControllerData.l2 == 1){
-      updateDesiredRPM(DECREASE_SPEED);
+      updateDesiredRPMLeft(DECREASE_SPEED);
     }
   }
-
-  if(prevControllerData.r2 != recvControllerData.r2){//if the controller data 
+  if(prevControllerData.r1 != recvControllerData.r1){
+    if(recvControllerData.r1 == 1){
+      updateDesiredRPMRight(INCREASE_SPEED);
+    }
+  }
+  if(prevControllerData.r2 != recvControllerData.r2){
     if(recvControllerData.r2 == 1){
-      updateDesiredRPM(INCREASE_SPEED);
+      updateDesiredRPMRight(DECREASE_SPEED);
     }
   }
 
+  /* HDM Operations */
   if(prevControllerData.btnA != recvControllerData.btnA){
     if(recvControllerData.btnA == 1){
       HDMSendCommand("A");
+    }
+  }
+
+  if(prevControllerData.btnB != recvControllerData.btnB){
+    if(recvControllerData.btnB == 1){
+      HDMSendCommand("B");
     }
   }
 

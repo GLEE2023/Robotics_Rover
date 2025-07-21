@@ -4,8 +4,12 @@ const uint8_t motorPWMPin[MOTOR_COUNT] = {MOTOR_ONE_PWM_PIN, MOTOR_TWO_PWM_PIN, 
 
 volatile uint32_t motorPulsePeriod[MOTOR_COUNT] = {0}; //Time between last encoder pulse and current encoder plse
 volatile uint32_t motorLastPulseTime[MOTOR_COUNT] = {0}; 
-volatile int desiredRPM = 0;
-static int wheelRPM     = 0;
+
+volatile int desiredRPMLeft  = 0;
+volatile int desiredRPMRight = 0; 
+static int wheelRPMLeft      = 0;
+static int wheelRPMRight     = 0;
+
 
 float motorActualRPM[MOTOR_COUNT] = {0}; //Actual RPM calculated from the encoder pulses
 float motorOutputVoltage[MOTOR_COUNT] = {0}; //Outputted PWM to get the desired RPM
@@ -36,6 +40,7 @@ void motorInit(){
   attachInterrupt(digitalPinToInterrupt(MOTOR_FOUR_ENC_PIN), motorFourEncoderISR, RISING);
 }
 
+/* Wrapper functions for motor drive direction */
 void motorDriveLeft(uint8_t dir){
   motorDrive(LEFT_SIDE, dir);
 }
@@ -55,18 +60,54 @@ void motorDrive(uint8_t side, uint8_t dir){
   }
 }
 
-void updateDesiredRPM(int change){
-  wheelRPM  += RPM_STEP_SIZE*change;
-  wheelRPM = constrain(wheelRPM, 0, MAX_WHEEL_RPM);
-  Serial.printf("Changing speed by %d\n New wheel RPM is %d\n", change, wheelRPM);
-
-  desiredRPM = wheelRPM * GEAR_RATIO;
-  desiredRPM = constrain(desiredRPM, 0, MAX_ENC_RPM);
-  Serial.printf("New encoder RPM is %d\n", desiredRPM);
+/* Wrapper functions for updateDesiredRPM */
+void updateDesiredRPMLeft(int change){
+  updateDesiredRPM(LEFT_SIDE, change);
 }
+
+void updateDesiredRPMRight(int change){
+  updateDesiredRPM(RIGHT_SIDE, change);
+}
+
+void updateDesiredRPM(uint8_t side, int change){
+  if(side == LEFT_SIDE){
+    wheelRPMLeft  += RPM_STEP_SIZE*change;
+    wheelRPMLeft = constrain(wheelRPMLeft, 0, MAX_WHEEL_RPM);
+
+    //DEBUG
+    //Serial.printf("Changing left side speed by %d\n New wheel RPM is %d\n", change, wheelRPMLeft);
+
+    desiredRPMLeft = wheelRPM * GEAR_RATIO;
+    desiredRPMLeft = constrain(desiredRPMLeft, 0, MAX_ENC_RPM);
+
+    // DEBUG
+    // Serial.printf("New encoder RPM is %d\n", desiredRPMLeft);
+  }
+  else{
+    wheelRPMRight  += RPM_STEP_SIZE*change;
+    wheelRPMRight = constrain(wheelRPMRight, 0, MAX_WHEEL_RPM);
+
+    //DEBUG
+    //Serial.printf("Changing left side speed by %d\n New wheel RPM is %d\n", change, wheelRPMLeft);
+
+    desiredRPMRight = wheelRPM * GEAR_RATIO;
+    desiredRPMRight = constrain(desiredRPMRight, 0, MAX_ENC_RPM);
+
+    // DEBUG
+    // Serial.printf("New encoder RPM is %d\n", desiredRPMRight);
+  }
+
+}
+
+uint8_t getDesiredRPM(uint8_t index){
+  return (index < 2) ? desiredRPMLeft : desiredRPMRight; //if index < 2 then its left side if its > 2 then its right and we get that rpm
+}
+
 
 void matchDesiredRPM(){
   for(int i = 0; i<MOTOR_COUNT; i++){
+
+    int desiredRPM = getDesiredRPM(i);
 
     motorActualRPM[i] = calculateRPM(i);
     if(desiredRPM == 0){
