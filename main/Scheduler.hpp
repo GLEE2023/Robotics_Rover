@@ -10,10 +10,11 @@
 #else
   #define MOTOR_INIT_EVENT                (1 << 0)
   #define HDM_INIT_EVENT                  (1 << 1)
+  #define ULTRASONIC_INIT_EVENT           (1 << 2)
 #endif
 
-#define ESP_NOW_INIT_EVENT              (1 << 2)
-#define ESP_NOW_WAIT_EVENT              (1 << 3)
+#define ESP_NOW_INIT_EVENT              (1 << 3)
+#define ESP_NOW_WAIT_EVENT              (1 << 4)
 
 /*Most of this code was reused from ECEN 2370 which was Embedded Systems, however the macros are different*/
 

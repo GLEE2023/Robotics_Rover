@@ -2,7 +2,7 @@
 
 void HDMInit(){
   Serial.begin(115200); //Called in main?
-  Serial.printf("Initializing UART");//We don't know if Serial.begin(115200) has been declared this is the assumption it has
+  Serial.printf("Initializing UART\n");//We don't know if Serial.begin(115200) has been declared this is the assumption it has
   Serial1.begin(BAUD_RATE, SERIAL_8N1, RX2, TX2);
 }
 

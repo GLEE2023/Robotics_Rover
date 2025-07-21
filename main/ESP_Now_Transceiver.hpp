@@ -13,6 +13,7 @@
   esp_wifi_set_channel(WIFI_CHANNEL, WIFI_SECOND_CHAN_NONE); */
   #include "Motor.hpp"
   #include "HDM.hpp"
+  #include "Ultrasonic.hpp"
 #else
   #include "Controller.hpp" //Only hub needs to use the controller functions
 #endif
@@ -51,7 +52,8 @@ typedef struct controller_data_t{
 
 typedef struct ultrasonic_data_t{
   int distance[ULTRASONIC_COUNT];
-} ultrasonic_data_t;
+} ultrasonic_data_t; 
+
 
 typedef struct data_transmit_t{
   uint8_t dataTransmitType;
@@ -84,8 +86,13 @@ bool ESP_Now_SanitizeController(controller_data_t &newData, const controller_dat
 void ESP_Now_TransmitDataController(); //Transmits the controller data
 #else if TRANSCEIVER_BUILD == ROVER_BUILD
 /*             ROVER FUNCTIONS                  */
+
+/* Initializations*/
 void ESP_Now_MotorInit();
 void ESP_Now_HDMInit();
+void ESP_Now_UltrasonicInit();
+
+
 void ESP_Now_GetUltrasonicData();
 void ESP_Now_ParseControllerData();
 void ESP_Now_TransmitDataUltrasonic(); //Transmits the ultrasonic data

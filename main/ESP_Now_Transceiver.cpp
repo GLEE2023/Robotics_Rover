@@ -189,6 +189,7 @@ void  ESP_Now_TransmitDataController(){
 void ESP_Now_PairController(){
   if(updateController()){ //Checks if controller is paired and if it is then change events
     removeSchedulerEvent(CONTROLLER_CHECK_PAIRING_EVENT);
+    Serial.println("Successfully paired controller, initializing ESP NOW");
     addSchedulerEvent(ESP_NOW_INIT_EVENT);
   } 
 }
@@ -264,15 +265,23 @@ void ESP_Now_Wait(){
 void ESP_Now_MotorInit(){
   removeSchedulerEvent(MOTOR_INIT_EVENT);
   motorInit();
+  Serial.println("Finished initializing motors");
   addSchedulerEvent(HDM_INIT_EVENT);//change to ultrasonic init event and remember HDM
 }
 
 void ESP_Now_HDMInit(){
   removeSchedulerEvent(HDM_INIT_EVENT);
   HDMInit();
-  addSchedulerEvent(ESP_NOW_INIT_EVENT);//change to ultrasonic init event
+  Serial.println("Finished initializing HDM");
+  addSchedulerEvent(ULTRASONIC_INIT_EVENT);//change to ultrasonic init event
 }
 
+void ESP_Now_UltrasonicInit(){
+  removeSchedulerEvent(ULTRASONIC_INIT_EVENT);
+  ultrasonicInit();
+  Serial.println("Finished initializing ultrasonic");
+  addSchedulerEvent(ESP_NOW_INIT_EVENT);
+}
 
 void ESP_Now_TransmitDataUltrasonic(){
   dataToSend.dataTransmitType = DATA_TRANSMIT_TYPE_ULTRASONIC;

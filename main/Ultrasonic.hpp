@@ -3,20 +3,19 @@
 
 #include <stdint.h>
 
-#define ULTRASONIC_ONE_ECHO       15
-#define ULTRASONIC_TWO_ECHO       15
-#define ULTRASONIC_THREE_ECHO     15
-#define ULTRASONIC_FOUR_ECHO      15
+#define SOUND_SPEED 0.0135039 // inch/uS
+#define ULTRASONIC_COUNT     4
 
-
-typedef struct ultrasonic_sensor_t{
-  uint8_t  trigPinNumber;
-  uint8_t  echoPinNumber;
-  uint16_t distance;
-} ultrasonic_sensor_t;
+#define TRIG_PIN             13
+#define ECHO_PIN_ZERO        35
+#define ECHO_PIN_ONE         34
+#define ECHO_PIN_TWO         39
+#define ECHO_PIN_THREE       36
 
 void ultrasonicInit();
-void calculateDistance(uint8_t sensorNumber);
-void getUltrasonic();
+
+void updateUltrasonicSensors();
+
+void getUltrasonic(float distances[]); //returns the data 
 
 #endif
