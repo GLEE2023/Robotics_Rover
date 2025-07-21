@@ -36,7 +36,11 @@ void loop() {
   else if(events & HDM_INIT_EVENT){
     ESP_Now_HDMInit();
   }
+  else if(events & ULTRASONIC_INIT_EVENT){
+    ESP_Now_UltrasonicInit();
+  }
 #endif
+
   else if(events & ESP_NOW_INIT_EVENT){
     ESP_Now_TransceiverInit();
   }

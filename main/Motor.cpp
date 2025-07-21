@@ -77,11 +77,11 @@ void updateDesiredRPM(uint8_t side, int change){
     //DEBUG
     //Serial.printf("Changing left side speed by %d\n New wheel RPM is %d\n", change, wheelRPMLeft);
 
-    desiredRPMLeft = wheelRPM * GEAR_RATIO;
+    desiredRPMLeft = wheelRPMLeft * GEAR_RATIO;
     desiredRPMLeft = constrain(desiredRPMLeft, 0, MAX_ENC_RPM);
 
     // DEBUG
-    // Serial.printf("New encoder RPM is %d\n", desiredRPMLeft);
+    Serial.printf("New encoder RPM is %d\n", desiredRPMLeft);
   }
   else{
     wheelRPMRight  += RPM_STEP_SIZE*change;
@@ -90,16 +90,16 @@ void updateDesiredRPM(uint8_t side, int change){
     //DEBUG
     //Serial.printf("Changing left side speed by %d\n New wheel RPM is %d\n", change, wheelRPMLeft);
 
-    desiredRPMRight = wheelRPM * GEAR_RATIO;
+    desiredRPMRight = wheelRPMRight * GEAR_RATIO;
     desiredRPMRight = constrain(desiredRPMRight, 0, MAX_ENC_RPM);
 
     // DEBUG
-    // Serial.printf("New encoder RPM is %d\n", desiredRPMRight);
+    Serial.printf("New encoder RPM is %d\n", desiredRPMRight);
   }
 
 }
 
-uint8_t getDesiredRPM(uint8_t index){
+int getDesiredRPM(uint8_t index){
   return (index < 2) ? desiredRPMLeft : desiredRPMRight; //if index < 2 then its left side if its > 2 then its right and we get that rpm
 }
 

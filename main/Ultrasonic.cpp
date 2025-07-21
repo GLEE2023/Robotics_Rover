@@ -5,7 +5,7 @@
 const int echoPin[ULTRASONIC_COUNT] = {ECHO_PIN_ZERO, ECHO_PIN_ONE, ECHO_PIN_TWO, ECHO_PIN_THREE};
 
 
-unsigned long   duration = 0;
+long   duration = 0;
 float           distanceInch[ULTRASONIC_COUNT] = {0}; 
 
 void ultrasonicInit(){
@@ -37,7 +37,6 @@ void updateUltrasonicSensors(){
       distanceInch[index] = duration * SOUND_SPEED;
     }
 
-
     // DEBUG
     // Serial.printf("Sensor number %d has a distance of %d (inch)", index, distanceInch[index]);
 
@@ -46,7 +45,13 @@ void updateUltrasonicSensors(){
 }
 
 void getUltrasonic(float distances[]){
+  updateUltrasonicSensors(); //update the sensors
   for (int i = 0; i < ULTRASONIC_COUNT; i++) {
         distances[i] = distanceInch[i];
   }
 }
+
+
+// float getUltrasonic(int index){
+//   return distanceInch[index];
+// }

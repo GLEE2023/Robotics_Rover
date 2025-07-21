@@ -51,7 +51,7 @@ typedef struct controller_data_t{
 } controller_data_t;
 
 typedef struct ultrasonic_data_t{
-  int distance[ULTRASONIC_COUNT];
+  float distance[ULTRASONIC_COUNT];
 } ultrasonic_data_t; 
 
 

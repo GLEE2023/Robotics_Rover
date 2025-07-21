@@ -134,7 +134,7 @@ void ESP_Now_TransmitData(uint32_t type){
 
 void ESP_Now_PrintUltrasonicData(){
   for(int i = 0; i < ULTRASONIC_COUNT; i++){
-    Serial.printf("Ultrasonic sensor #%d, distance: %d\n", i, ultrasonicData.distance[i]);
+    Serial.printf("Ultrasonic sensor #%d, distance: %f\n", i, ultrasonicData.distance[i]);
   }
 }
 
@@ -312,10 +312,14 @@ void ESP_Now_Wait(){
 }
 
 void ESP_Now_GetUltrasonicData(){
-  for(int i=0; i < ULTRASONIC_COUNT; i++){
-    ultrasonicData.distance[i] = i;
-  }
+  getUltrasonic(ultrasonicData.distance);
   ESP_Now_TransmitData(DATA_TRANSMIT_TYPE_ULTRASONIC);
+
+  // updateUltrasonicSensors(); //update the sensors
+  // for(int i = 0; i<ULTRASONIC_COUNT; i++){
+  //   ultrasonicData.distance[i] = getUltrasonic(i);
+  // }
+  // ESP_Now_TransmitData(DATA_TRANSMIT_TYPE_ULTRASONIC);
 }
 
 void ESP_Now_ParseControllerData(){
