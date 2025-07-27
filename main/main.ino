@@ -28,7 +28,12 @@ void loop() {
    ESP_Now_PairController();
    delay(100);
   }
-  // else /* Else required so we don't trigger two events in the same loop */ 
+  else if(events & ESP_NOW_INIT_EVENT){
+    ESP_Now_TransceiverInit();
+  }
+  else if(events & ESP_NOW_WAIT_EVENT){
+    ESP_Now_Wait();
+  }
 #else /*TRANSCEIVER_BUILD == ROVER_BUILD */
   if(events & MOTOR_INIT_EVENT){
     ESP_Now_MotorInit();
@@ -39,16 +44,16 @@ void loop() {
   else if(events & ULTRASONIC_INIT_EVENT){
     ESP_Now_UltrasonicInit();
   }
-#endif
-
   else if(events & ESP_NOW_INIT_EVENT){
     ESP_Now_TransceiverInit();
   }
   else if(events & ESP_NOW_WAIT_EVENT){
     ESP_Now_Wait();
   }
-}
+  else if(events & ULTRASONIC_SEND_EVENT){
+    ESP_Now_GetUltrasonicData();
+  }
+#endif
 
-// timerAttachInterrupt();
-// hw_timer_t 
-// timerAlarmEnable();
+
+}

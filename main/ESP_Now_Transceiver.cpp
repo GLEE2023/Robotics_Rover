@@ -280,6 +280,9 @@ void ESP_Now_UltrasonicInit(){
   removeSchedulerEvent(ULTRASONIC_INIT_EVENT);
   ultrasonicInit();
   Serial.println("Finished initializing ultrasonic");
+  Serial.println("Initializing ultrasonic timer");
+  timerUltrasonicInit();
+  Serial.println("Finished initializing ultrasonic timer");
   addSchedulerEvent(ESP_NOW_INIT_EVENT);
 }
 
@@ -301,17 +304,15 @@ void ESP_Now_TransmitDataUltrasonic(){
 }
 
 void ESP_Now_Wait(){
-  Serial.printf("Waiting for data\n");
-  ESP_Now_GetUltrasonicData();
-  delay(1000);
-    // if(newControllerData == true){
-    //   newControllerData = false;
-    //   ESP_Now_ParseControllerData();
-    // }
-    // matchDesiredRPM();
+  if(newControllerData == true){
+    newControllerData = false;
+    ESP_Now_ParseControllerData();
+  }
+  matchDesiredRPM();
 }
 
 void ESP_Now_GetUltrasonicData(){
+  removeSchedulerEvent(ULTRASONIC_SEND_EVENT);
   getUltrasonic(ultrasonicData.distance);
   ESP_Now_TransmitData(DATA_TRANSMIT_TYPE_ULTRASONIC);
 }

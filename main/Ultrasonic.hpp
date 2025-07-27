@@ -2,6 +2,7 @@
 #define ULTRASONIC_H
 
 #include <stdint.h>
+#include "timer.hpp"
 
 #define SOUND_SPEED 0.0135039 // inch/uS
 #define ULTRASONIC_COUNT     4

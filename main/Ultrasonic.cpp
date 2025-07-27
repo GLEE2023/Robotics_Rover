@@ -40,7 +40,7 @@ void updateUltrasonicSensors(){
     // DEBUG
     // Serial.printf("Sensor number %d has a distance of %d (inch)", index, distanceInch[index]);
 
-    delay(100); //wait 100ms before getting the next sensor distance
+    delay(25); //wait 25ms before getting the next sensor distance
   }
 }
 
@@ -48,5 +48,6 @@ void getUltrasonic(float distances[]){
   updateUltrasonicSensors(); //update the sensors
   for (int i = 0; i < ULTRASONIC_COUNT; i++) {
         distances[i] = distanceInch[i];
+        //puts the local distance data into the packet that will transmit
   }
 }
