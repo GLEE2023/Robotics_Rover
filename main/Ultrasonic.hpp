@@ -14,11 +14,9 @@
 
 void ultrasonicInit();
 
-void updateUltrasonicSensors();
+void updateUltrasonicSensors(); //Sends out a trig pulse to update distances for all sensors
 
 void getUltrasonic(float distances[]); //stores the distances calculated into the input array 
-
-// float getUltrasonic(int index); //returns the distance for specific ultrasonic 
 
 
 #endif

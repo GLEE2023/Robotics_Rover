@@ -93,8 +93,8 @@ void ESP_Now_HDMInit();
 void ESP_Now_UltrasonicInit();
 
 
-void ESP_Now_GetUltrasonicData();
-void ESP_Now_ParseControllerData();
+void ESP_Now_GetUltrasonicData(); //Updates ultrasonic data distances
+void ESP_Now_ParseControllerData(); //Executes proper action depending on button press
 void ESP_Now_TransmitDataUltrasonic(); //Transmits the ultrasonic data
 #endif
 

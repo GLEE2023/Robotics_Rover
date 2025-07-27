@@ -314,12 +314,6 @@ void ESP_Now_Wait(){
 void ESP_Now_GetUltrasonicData(){
   getUltrasonic(ultrasonicData.distance);
   ESP_Now_TransmitData(DATA_TRANSMIT_TYPE_ULTRASONIC);
-
-  // updateUltrasonicSensors(); //update the sensors
-  // for(int i = 0; i<ULTRASONIC_COUNT; i++){
-  //   ultrasonicData.distance[i] = getUltrasonic(i);
-  // }
-  // ESP_Now_TransmitData(DATA_TRANSMIT_TYPE_ULTRASONIC);
 }
 
 void ESP_Now_ParseControllerData(){

@@ -50,8 +50,3 @@ void getUltrasonic(float distances[]){
         distances[i] = distanceInch[i];
   }
 }
-
-
-// float getUltrasonic(int index){
-//   return distanceInch[index];
-// }
