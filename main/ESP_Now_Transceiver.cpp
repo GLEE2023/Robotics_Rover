@@ -301,14 +301,14 @@ void ESP_Now_TransmitDataUltrasonic(){
 }
 
 void ESP_Now_Wait(){
-  // Serial.printf("Waiting for data\n");
-  // ESP_Now_GetUltrasonicData();
-  // delay(1000);
-    if(newControllerData == true){
-      newControllerData = false;
-      ESP_Now_ParseControllerData();
-    }
-    matchDesiredRPM();
+  Serial.printf("Waiting for data\n");
+  ESP_Now_GetUltrasonicData();
+  delay(1000);
+    // if(newControllerData == true){
+    //   newControllerData = false;
+    //   ESP_Now_ParseControllerData();
+    // }
+    // matchDesiredRPM();
 }
 
 void ESP_Now_GetUltrasonicData(){
@@ -327,15 +327,31 @@ void ESP_Now_ParseControllerData(){
   controller_data_t recvControllerData = controllerData; /*temp variable in the event that controllerData changes on from ESP-NOW*/
 
   if(recvControllerData.axisY > 50){
+    if(prevControllerData.axisY < -50){//if it was going forwards then we need to slow down before we change directions
+      rampDown(LEFT_SIDE);
+      delay(100);
+    } 
     motorDriveLeft(BACKWARDS);
   }
   else if(recvControllerData.axisY < -50){ 
+    if(prevControllerData.axisY > -50){
+      rampDown(LEFT_SIDE);
+      delay(100);
+    } 
     motorDriveLeft(FORWARDS);
   }
   if(recvControllerData.axisRY > 50){
+     if(prevControllerData.axisRY < -50){
+      rampDown(RIGHT_SIDE);
+      delay(100);
+    } 
     motorDriveRight(BACKWARDS);
   }
   else if (recvControllerData.axisRY < -50){
+    if(prevControllerData.axisRY > 50){
+      rampDown(RIGHT_SIDE);
+      delay(100);
+    } 
     motorDriveRight(FORWARDS);
   }
 

@@ -56,6 +56,9 @@ void updateDesiredRPMRight(int change);
 void updateDesiredRPM(uint8_t side, int change); //Updates the global desired speed for each motor (this happens through the controller from ESP-NOW), the user will be inputting a desired RPM, which the interface displays as a velocity but that would be converted in code
 void matchDesiredRPM(); //Updates each motors speed to be the global desired speed, can incorporate a PID in the future
 
+void rampDown(uint8_t side); //adjusts speed to 0
+
+
 uint32_t calculateRPM(uint32_t motorNum); //finds the RPM and returns it
 uint32_t getPulsePeriod(uint32_t motorNum); //Disables interrupts and returns the period, this is a safer way to get the pulses rather than just reading from the global variable
 

@@ -147,6 +147,17 @@ uint32_t calculateRPM(uint32_t motorNum){ //take in a given motor and returns it
   return rpm;
 }
 
+void rampDown(uint8_t side){
+  if(side == LEFT_SIDE){
+    analogWrite(motorPWMPin[0], 0);
+    analogWrite(motorPWMPin[1], 0);
+  }
+  else{
+    analogWrite(motorPWMPin[2], 0);
+    analogWrite(motorPWMPin[3], 0);
+  }
+}
+
 void IRAM_ATTR motorOneEncoderISR(){
   uint32_t currentTime = micros();
   motorPulsePeriod[MOTOR_ONE] = currentTime - motorLastPulseTime[MOTOR_ONE];
