@@ -2,7 +2,9 @@
 #define ULTRASONIC_H
 
 #include <stdint.h>
-#include "timer.hpp"
+// #if TRANSCEIVER_BUILD == ROVER_BUILD 
+// #include "timer.hpp"
+// #endif
 
 #define SOUND_SPEED 0.0135039 // inch/uS
 #define ULTRASONIC_COUNT     4

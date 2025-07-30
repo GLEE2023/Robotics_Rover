@@ -3,13 +3,13 @@
 
 #include "Arduino.h"
 
-#define MOTOR_ONE_PWM_PIN   22
-#define MOTOR_TWO_PWM_PIN   23
-#define MOTOR_THREE_PWM_PIN 33
-#define MOTOR_FOUR_PWM_PIN  32
+#define MOTOR_ONE_PWM_PIN   23
+#define MOTOR_TWO_PWM_PIN   22
+#define MOTOR_THREE_PWM_PIN 32
+#define MOTOR_FOUR_PWM_PIN  33
 
-#define MOTOR_ONE_ENC_PIN   18
-#define MOTOR_TWO_ENC_PIN   19
+#define MOTOR_ONE_ENC_PIN   19
+#define MOTOR_TWO_ENC_PIN   18
 #define MOTOR_THREE_ENC_PIN 25
 #define MOTOR_FOUR_ENC_PIN  26
 
@@ -58,6 +58,7 @@ void matchDesiredRPM(); //Updates each motors speed to be the global desired spe
 
 void rampDown(uint8_t side); //adjusts speed to 0
 
+void setDesiredRPM(uint8_t side, int rpm);
 
 uint32_t calculateRPM(uint32_t motorNum); //finds the RPM and returns it
 uint32_t getPulsePeriod(uint32_t motorNum); //Disables interrupts and returns the period, this is a safer way to get the pulses rather than just reading from the global variable
