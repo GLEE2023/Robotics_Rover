@@ -7,6 +7,8 @@ Bluepad32 by Ricardo Quesada:
 
 esp32 by Espressif Systems
 
+The code can be compiled for either the Hub microcontroller or Rover microcontroller. Before downloading the code go to BuildConfig.hpp and change TRANSCEIVER_BUILD to either HUB_BUILD or ROVER_BUILD.
+
 The Hub microcontroller compilation uses Bluepad32 (a Bluetooth protocol) to read in data from a controller. It then uses ESP-NOW to send it to the Rover microcontroller. The Hub configuration should use the esp32 dev module by esp32_bluepad32 board when downloading the code. This is seen in the image below.
 
 <img width="680" height="481" alt="image" src="https://github.com/user-attachments/assets/e7f2c710-330a-4fed-a900-ffb8cef27f17" />
