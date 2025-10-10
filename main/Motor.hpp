@@ -21,7 +21,7 @@
 #define RIGHT_SIDE           1
 
 #define MOTOR_COUNT          4
-#define PULSES_PER_REVOLUTION 24
+#define PULSES_PER_REVOLUTION 12
 #define MICROS_PER_SECOND    1e6
 #define SECONDS_PER_MINUTE   60
 #define WHEEL_DIAMETER       5.5 /* this is in inches */
@@ -39,6 +39,8 @@
 
 #define RPM_FROM_FREQ(frequency)          ( (frequency * SECONDS_PER_MINUTE) / PULSES_PER_REVOLUTION )
 #define VELOCITY_FROM_RPM(rpm)            ( (WHEEL_CIRCUMFERENCE * rpm) / SECONDS_PER_MINUTE ) /* returns velocity in inches/second */
+#define WHEEL_RPM_FROM_ENC_RPM(enc_rpm)   ( (enc_rpm) / GEAR_RATIO )
+
 
 #define MOTOR_ONE            0
 #define MOTOR_TWO            1

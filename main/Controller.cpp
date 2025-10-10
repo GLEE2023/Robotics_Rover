@@ -5,12 +5,16 @@
 ControllerPtr myController;
 
 void onControllerConnect(ControllerPtr newController) {
-  if(myController == nullptr){
+  if(myController == nullptr /*&& newController->isGamepad()*/){//Only connect if its a contrller
     myController = newController;
     Serial.printf("Controller is successfully paired\n");
     ControllerProperties properties = newController->getProperties();
+    
     Serial.printf("Controller model: %s, VID=0x%04x, PID=0x%04x\n", newController->getModelName().c_str(), properties.vendor_id, properties.product_id);
   }
+  // else if(!newController->isGamepad()){
+  //   Serial.printf("Attempted to pair with not a contrller");
+  // }
   else{
     Serial.printf("Another controller is already paired, unable to pair");
   }

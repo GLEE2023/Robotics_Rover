@@ -5,7 +5,8 @@
   // static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address dead
   // static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x4f, 0xD9, 0x10}; //Rover MAC Address dead
   // static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x86, 0x42, 0x24}; //Rover MAC Address dead
-    static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Rover MAC Address active
+    // static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Rover MAC Address Retired
+    static uint8_t peerAddress[]   = {0x38, 0x18, 0x2B, 0xB2, 0x9D, 0xA8}; //Rover MAC Address Active38:18:2b:b2:9d:a8
   static ControllerPtr myCurrentController;
 #else
   // static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
@@ -272,7 +273,7 @@ void ESP_Now_MotorInit(){
 
 void ESP_Now_HDMInit(){
   removeSchedulerEvent(HDM_INIT_EVENT);
-  HDMInit();
+  // HDMInit(); //UNCOMMENT LATER DONT
   Serial.println("Finished initializing HDM");
   addSchedulerEvent(ULTRASONIC_INIT_EVENT);//change to ultrasonic init event
 }
@@ -432,7 +433,7 @@ void ESP_Now_ParseControllerData(){
       HDMSendCommand("B");
     }
   }
-  Serial.println("Parsed Controller data");
+  // Serial.println("Parsed Controller data");
   //Update prev controller
   prevControllerData = recvControllerData;
 }

@@ -1,4 +1,4 @@
-  #include "Motor.hpp"
+#include "Motor.hpp"
 
   const uint8_t motorPWMPin[MOTOR_COUNT] = {MOTOR_ONE_PWM_PIN, MOTOR_TWO_PWM_PIN, MOTOR_THREE_PWM_PIN, MOTOR_FOUR_PWM_PIN};
 
@@ -115,12 +115,14 @@
   }
 
   void matchDesiredRPM(){
+
     for(int i = 0; i<MOTOR_COUNT; i++){
       int desiredRPM = getDesiredRPM(i);
 
       if(i == 3){//motor 4
         int motor4PWM = map(desiredRPM, 0, 45, 0, 255);
         analogWrite(motorPWMPin[3], motor4PWM);
+        break;
       }
       else{
       motorActualRPM[i] = calculateRPM(i);
@@ -129,8 +131,9 @@
       }
       else{
         float error = ((desiredRPM - motorActualRPM[i]) / desiredRPM);
-        // error = constrain(error, -0.1, 0.1); //Forces the motor to slowly change
-        Serial.printf("The error for motor %d is %f\n", i, error);
+        error = constrain(error, -0.05, 0.05); //Forces the motor to slowly change
+        // Serial.printf("The error for motor %d is %f\n", i, error);
+        Serial.printf("error:%f", error);
         motorOutputVoltage[i] += error; //Adds the error the the output voltage
       }
       /* this logic was given by Frankie Sharman, it can be expanded upon in the future and should be a PID controller 
@@ -160,6 +163,8 @@
     float freq = MICROS_PER_SECOND / period; //gets the frequency in Hz
     // Serial.printf("The frequency is %f\n", freq);
     float rpm  = RPM_FROM_FREQ(freq); //calculates rpm
+    float wheel_rpm = WHEEL_RPM_FROM_ENC_RPM(rpm);
+    Serial.printf("WheelRPM:%f\n", wheel_rpm);
     // Serial.printf("The calculated rpm for motor number %d is %f\n", motorNum, rpm);
     return rpm;
   }
