@@ -4,13 +4,22 @@
 #include <Arduino.h>
 
 /* Pins */
-#define RX2 16
-#define TX2 17
+#define RX2 17
+#define TX2 16
 
-#define BAUD_RATE 115200
+#define BAUD_RATE 9600
+
+enum HDMCommand : uint8_t {
+  HDM_COMMAND_POWERUP,
+  HDM_COMMAND_POWERDOWN,
+  HDM_COMMAND_INCREMENT_DISKS,
+  HDM_COMMAND_DECREMENT_DISKS,
+  HDM_COMMAND_LAUNCH_DISKS,
+  HDM_COMMAND_ROTATE_BARREL
+};
 
 void HDMInit(); //Initializes UART for the HDM and Rover
-void HDMSendCommand(String command); //sends the desired command to be preformed on the HDM
+void HDMSendCommand(HDMCommand command); //sends the desired command to be preformed on the HDM
 void HDMStatus(); //tells whether data is successfully sent
 
 #endif

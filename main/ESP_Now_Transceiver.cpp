@@ -273,7 +273,7 @@ void ESP_Now_MotorInit(){
 
 void ESP_Now_HDMInit(){
   removeSchedulerEvent(HDM_INIT_EVENT);
-  // HDMInit(); //UNCOMMENT LATER DONT
+  HDMInit(); 
   Serial.println("Finished initializing HDM");
   addSchedulerEvent(ULTRASONIC_INIT_EVENT);//change to ultrasonic init event
 }
@@ -422,17 +422,42 @@ void ESP_Now_ParseControllerData(){
   // }
 
   /* HDM Operations */
-  if(prevControllerData.btnA != recvControllerData.btnA){
-    if(recvControllerData.btnA == 1){
-      HDMSendCommand("A");
+  if(prevControllerData.l1 != recvControllerData.l1){
+    if(recvControllerData.l1 == 1){
+      HDMSendCommand(HDM_COMMAND_POWERUP);
     }
   }
 
-  if(prevControllerData.btnB != recvControllerData.btnB){
-    if(recvControllerData.btnB == 1){
-      HDMSendCommand("B");
+  if(prevControllerData.l2 != recvControllerData.l2){
+    if(recvControllerData.l2 == 1){
+      HDMSendCommand(HDM_COMMAND_POWERDOWN);
     }
   }
+
+  if(prevControllerData.r1 != recvControllerData.r1){
+    if(recvControllerData.r1 == 1){
+      HDMSendCommand(HDM_COMMAND_INCREMENT_DISKS);
+    }
+  }
+
+  if(prevControllerData.r2 != recvControllerData.r2){
+    if(recvControllerData.r2 == 1){
+      HDMSendCommand(HDM_COMMAND_DECREMENT_DISKS);
+    }
+  }
+
+  if(prevControllerData.btnA != recvControllerData.btnA){ 
+    if(recvControllerData.btnA == 1){
+      HDMSendCommand(HDM_COMMAND_LAUNCH_DISKS);
+    }
+  }
+
+  if(prevControllerData.btnB != recvControllerData.btnB){ 
+    if(recvControllerData.btnB == 1){
+      HDMSendCommand(HDM_COMMAND_ROTATE_BARREL);
+    }
+  }
+
   // Serial.println("Parsed Controller data");
   //Update prev controller
   prevControllerData = recvControllerData;

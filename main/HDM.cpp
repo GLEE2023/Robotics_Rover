@@ -6,10 +6,11 @@ void HDMInit(){
   Serial1.begin(BAUD_RATE, SERIAL_8N1, RX2, TX2);
 }
 
-void HDMSendCommand(String command){
-  Serial1.printf("%s", command); //sends the desired command
-  delay(2000); //wait 0.1 seconds
-  HDMStatus(); //Displays to user whether command successfully sent
+void HDMSendCommand(HDMCommand command){
+  Serial1.write((uint8_t)command); //sends the desired command
+  delay(100); //wait 0.1 seconds
+  // HDMStatus(); //Displays to user whether command successfully sent 
+  //Dont want status right now
 }
 
 void HDMStatus(){
