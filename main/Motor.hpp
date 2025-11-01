@@ -3,22 +3,22 @@
 
 #include "Arduino.h"
 
-#define MOTOR_ONE_PWM_PIN   23
-#define MOTOR_TWO_PWM_PIN   22
-#define MOTOR_THREE_PWM_PIN 32
-#define MOTOR_FOUR_PWM_PIN  33
+#define MOTOR_FR_PWM_PIN   33
+#define MOTOR_BR_PWM_PIN   32
+#define MOTOR_FL_PWM_PIN   22
+#define MOTOR_BL_PWM_PIN   23
 
-#define MOTOR_ONE_ENC_PIN   19
-#define MOTOR_TWO_ENC_PIN   18
-#define MOTOR_THREE_ENC_PIN 25
-#define MOTOR_FOUR_ENC_PIN  26
+#define MOTOR_FR_ENC_PIN   25
+#define MOTOR_BR_ENC_PIN   26
+#define MOTOR_FL_ENC_PIN   19
+#define MOTOR_BL_ENC_PIN   18
 
 #define MOTOR_LEFT_DIR_PIN   21
 #define MOTOR_RIGHT_DIR_PIN  27
 
 
-#define LEFT_SIDE            0
-#define RIGHT_SIDE           1
+#define LEFT_SIDE            1
+#define RIGHT_SIDE           0
 
 #define MOTOR_COUNT          4
 #define PULSES_PER_REVOLUTION 12
@@ -42,10 +42,10 @@
 #define WHEEL_RPM_FROM_ENC_RPM(enc_rpm)   ( (enc_rpm) / GEAR_RATIO )
 
 
-#define MOTOR_ONE            0
-#define MOTOR_TWO            1
-#define MOTOR_THREE          2
-#define MOTOR_FOUR           3
+#define MOTOR_FR            0
+#define MOTOR_BR            1
+#define MOTOR_FL            2
+#define MOTOR_BL            3
 
 
 void motorInit(); //Initializes motors
@@ -69,9 +69,9 @@ void motorDriveLeft(uint8_t dir);
 void motorDriveRight(uint8_t dir);
 void motorDrive(uint8_t side, uint8_t dir);
 
-void IRAM_ATTR motorOneEncoderISR();
-void IRAM_ATTR motorTwoEncoderISR();
-void IRAM_ATTR motorThreeEncoderISR();
-void IRAM_ATTR motorFourEncoderISR();
+void IRAM_ATTR motorFREncoderISR();
+void IRAM_ATTR motorBREncoderISR();
+void IRAM_ATTR motorFLEncoderISR();
+void IRAM_ATTR motorBLEncoderISR();
 
 #endif

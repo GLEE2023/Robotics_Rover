@@ -6,7 +6,7 @@ const int echoPin[ULTRASONIC_COUNT] = {ECHO_PIN_ZERO, ECHO_PIN_ONE, ECHO_PIN_TWO
 
 
 long   duration = 0;
-float           distanceInch[ULTRASONIC_COUNT] = {0}; 
+float  distanceInch[ULTRASONIC_COUNT] = {0}; 
 
 void ultrasonicInit(){
   pinMode(TRIG_PIN, OUTPUT); 

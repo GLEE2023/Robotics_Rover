@@ -280,8 +280,8 @@ void ESP_Now_HDMInit(){
 
 void ESP_Now_UltrasonicInit(){
   removeSchedulerEvent(ULTRASONIC_INIT_EVENT);
-  ultrasonicInit();
-  Serial.println("Finished initializing ultrasonic");
+  // ultrasonicInit();
+  // Serial.println("Finished initializing ultrasonic");
   // Serial.println("Initializing ultrasonic timer");
   // timerUltrasonicInit();
   // Serial.println("Finished initializing ultrasonic timer");

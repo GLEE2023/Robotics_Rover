@@ -50,9 +50,9 @@ void loop() {
   else if(events & ESP_NOW_WAIT_EVENT){
     ESP_Now_Wait();
   }
-  else if(events & ULTRASONIC_SEND_EVENT){
-    ESP_Now_GetUltrasonicData();
-  }
+  // else if(events & ULTRASONIC_SEND_EVENT){
+  //   ESP_Now_GetUltrasonicData();
+  // }
 #endif
 
 

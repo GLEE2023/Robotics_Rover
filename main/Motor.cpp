@@ -1,6 +1,6 @@
 #include "Motor.hpp"
 
-  const uint8_t motorPWMPin[MOTOR_COUNT] = {MOTOR_ONE_PWM_PIN, MOTOR_TWO_PWM_PIN, MOTOR_THREE_PWM_PIN, MOTOR_FOUR_PWM_PIN};
+  const uint8_t motorPWMPin[MOTOR_COUNT] = {MOTOR_FR_PWM_PIN, MOTOR_BR_PWM_PIN, MOTOR_FL_PWM_PIN, MOTOR_BL_PWM_PIN};
 
   volatile uint32_t motorPulsePeriod[MOTOR_COUNT] = {0}; //Time between last encoder pulse and current encoder plse
   volatile uint32_t motorLastPulseTime[MOTOR_COUNT] = {0}; 
@@ -17,16 +17,16 @@
   void motorInit(){
 
     /* PWM Pins Init */
-    pinMode(MOTOR_ONE_PWM_PIN, OUTPUT);
-    pinMode(MOTOR_TWO_PWM_PIN, OUTPUT);
-    pinMode(MOTOR_THREE_PWM_PIN, OUTPUT);
-    pinMode(MOTOR_FOUR_PWM_PIN, OUTPUT);
+    pinMode(MOTOR_FR_PWM_PIN, OUTPUT);
+    pinMode(MOTOR_BR_PWM_PIN, OUTPUT);
+    pinMode(MOTOR_FL_PWM_PIN, OUTPUT);
+    pinMode(MOTOR_BL_PWM_PIN, OUTPUT);
 
     /* ENC PINS INIT */
-    pinMode(MOTOR_ONE_ENC_PIN, INPUT_PULLUP); /*NE12 datasheet says it is open-collect ref: https://www.servocity.com/content/downloads/ne12_-_use_parameter.pdf */
-    pinMode(MOTOR_TWO_ENC_PIN, INPUT_PULLUP);
-    pinMode(MOTOR_THREE_ENC_PIN, INPUT_PULLUP);
-    // pinMode(MOTOR_FOUR_ENC_PIN, INPUT_PULLUP);
+    pinMode(MOTOR_FR_ENC_PIN, INPUT_PULLUP); /*NE12 datasheet says it is open-collect ref: https://www.servocity.com/content/downloads/ne12_-_use_parameter.pdf */
+    pinMode(MOTOR_BR_ENC_PIN, INPUT_PULLUP);
+    pinMode(MOTOR_FL_ENC_PIN, INPUT_PULLUP);
+    // pinMode(MOTOR_BL_ENC_PIN, INPUT_PULLUP);
 
     /* Direction Controls Init*/
     pinMode(MOTOR_LEFT_DIR_PIN, OUTPUT);
@@ -34,10 +34,10 @@
 
 
     /* Creates ISR for encoders */
-    attachInterrupt(digitalPinToInterrupt(MOTOR_ONE_ENC_PIN), motorOneEncoderISR, RISING);
-    attachInterrupt(digitalPinToInterrupt(MOTOR_TWO_ENC_PIN), motorTwoEncoderISR, RISING);
-    attachInterrupt(digitalPinToInterrupt(MOTOR_THREE_ENC_PIN), motorThreeEncoderISR, RISING);
-    // attachInterrupt(digitalPinToInterrupt(MOTOR_FOUR_ENC_PIN), motorFourEncoderISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(MOTOR_FR_ENC_PIN), motorFREncoderISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(MOTOR_BR_ENC_PIN), motorBREncoderISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(MOTOR_FL_ENC_PIN), motorFLEncoderISR, RISING);
+    // attachInterrupt(digitalPinToInterrupt(MOTOR_BL_ENC_PIN), motorBLEncoderISR, RISING);
   }
 
   /* Wrapper functions for motor drive direction */
@@ -51,11 +51,11 @@
 
   void motorDrive(uint8_t side, uint8_t dir){
     if(side == LEFT_SIDE){
-      Serial.printf("Left side is attempting to %s\n", dir == FORWARDS ? "forwards" : "backwards");
+      // Serial.printf("Left side is attempting to %s\n", dir == FORWARDS ? "forwards" : "backwards");
       digitalWrite(MOTOR_LEFT_DIR_PIN, dir);
     }
     else{ /* side = RIGHT_SIDE*/
-      Serial.printf("Right side is attempting to %s\n", dir == FORWARDS ? "forwards" : "backwards");
+      // Serial.printf("Right side is attempting to %s\n", dir == FORWARDS ? "forwards" : "backwards");
       digitalWrite(MOTOR_RIGHT_DIR_PIN, dir);
     }
   }
@@ -100,7 +100,12 @@
   }
 
   int getDesiredRPM(uint8_t index){
-    return (index < 2) ? desiredRPMLeft : desiredRPMRight; //if index < 2 then its left side if its > 2 then its right and we get that rpm
+    if(index == MOTOR_FR || index == MOTOR_BR){
+      return desiredRPMRight;
+    }
+    else{
+      return desiredRPMLeft;
+    }
   }
 
   void setDesiredRPM(uint8_t side, int rpm){
@@ -120,8 +125,8 @@
       int desiredRPM = getDesiredRPM(i);
 
       if(i == 3){//motor 4
-        int motor4PWM = map(desiredRPM, 0, 45, 0, 255);
-        analogWrite(motorPWMPin[3], motor4PWM);
+        int motorBLPWM = map(desiredRPM, 0, 45, 0, 255);
+        analogWrite(motorPWMPin[3], motorBLPWM);
         break;
       }
       else{
@@ -131,15 +136,18 @@
       }
       else{
         float error = ((desiredRPM - motorActualRPM[i]) / desiredRPM);
-        error = constrain(error, -0.05, 0.05); //Forces the motor to slowly change
-        // Serial.printf("The error for motor %d is %f\n", i, error);
-        Serial.printf("error:%f", error);
+        // error = constrain(error, -0.05, 0.05); //Forces the motor to slowly change
+
+        //[DEBUG]
+        Serial.printf("The error for motor %d is %f\n", i, error);
+        // Serial.printf("error:%f", error);
+        
         motorOutputVoltage[i] += error; //Adds the error the the output voltage
       }
       /* this logic was given by Frankie Sharman, it can be expanded upon in the future and should be a PID controller 
       It normalizes the error (the stuff on the right) and adds it to the actual (the error could be a positive or negative value)*/
       motorOutputVoltage[i] = constrain(motorOutputVoltage[i], 0, MAX_VOLTAGE); //Sets the output voltage to a minimum of 0 or a max of 3.3
-      // Serial.printf("The output voltage for motor %d is: %f\n", i, motorOutputVoltage[i]);
+      Serial.printf("The output voltage for motor %d is: %f\n", i, motorOutputVoltage[i]);
       analogWrite(motorPWMPin[i], motorOutputVoltage[i] * 77);
       }
     }
@@ -164,8 +172,8 @@
     // Serial.printf("The frequency is %f\n", freq);
     float rpm  = RPM_FROM_FREQ(freq); //calculates rpm
     float wheel_rpm = WHEEL_RPM_FROM_ENC_RPM(rpm);
-    Serial.printf("WheelRPM:%f\n", wheel_rpm);
-    // Serial.printf("The calculated rpm for motor number %d is %f\n", motorNum, rpm);
+    // Serial.printf("WheelRPM:%f\n", wheel_rpm);
+    Serial.printf("The calculated rpm for motor number %d is %f\n", motorNum, rpm);
     return rpm;
   }
 
@@ -180,26 +188,26 @@
     }
   }
 
-  void IRAM_ATTR motorOneEncoderISR(){
+  void IRAM_ATTR motorFREncoderISR(){
     uint32_t currentTime = micros();
-    motorPulsePeriod[MOTOR_ONE] = currentTime - motorLastPulseTime[MOTOR_ONE];
-    motorLastPulseTime[MOTOR_ONE] = currentTime;
+    motorPulsePeriod[MOTOR_FR] = currentTime - motorLastPulseTime[MOTOR_FR];
+    motorLastPulseTime[MOTOR_FR] = currentTime;
   }
 
-  void IRAM_ATTR motorTwoEncoderISR(){
+  void IRAM_ATTR motorBREncoderISR(){
     uint32_t currentTime = micros();
-    motorPulsePeriod[MOTOR_TWO] = currentTime - motorLastPulseTime[MOTOR_TWO];
-    motorLastPulseTime[MOTOR_TWO] = currentTime;
+    motorPulsePeriod[MOTOR_BR] = currentTime - motorLastPulseTime[MOTOR_BR];
+    motorLastPulseTime[MOTOR_BR] = currentTime;
   }
 
-  void IRAM_ATTR motorThreeEncoderISR(){
+  void IRAM_ATTR motorFLEncoderISR(){
     uint32_t currentTime = micros();
-    motorPulsePeriod[MOTOR_THREE] = currentTime - motorLastPulseTime[MOTOR_THREE];
-    motorLastPulseTime[MOTOR_THREE] = currentTime;
+    motorPulsePeriod[MOTOR_FL] = currentTime - motorLastPulseTime[MOTOR_FL];
+    motorLastPulseTime[MOTOR_FL] = currentTime;
   }
 
-  void IRAM_ATTR motorFourEncoderISR(){
+  void IRAM_ATTR motorBLEncoderISR(){
     uint32_t currentTime = micros();
-    motorPulsePeriod[MOTOR_FOUR] = currentTime - motorLastPulseTime[MOTOR_FOUR];
-    motorLastPulseTime[MOTOR_FOUR] = currentTime;
+    motorPulsePeriod[MOTOR_BL] = currentTime - motorLastPulseTime[MOTOR_BL];
+    motorLastPulseTime[MOTOR_BL] = currentTime;
   }
