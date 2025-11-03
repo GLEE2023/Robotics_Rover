@@ -7,7 +7,11 @@
   // static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x86, 0x42, 0x24}; //Rover MAC Address dead
     // static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Rover MAC Address Retired
     static uint8_t peerAddress[]   = {0x38, 0x18, 0x2B, 0xB2, 0x9D, 0xA8}; //Rover MAC Address Active38:18:2b:b2:9d:a8
-  static ControllerPtr myCurrentController;
+    static ControllerPtr myCurrentController;
+    static int hubHDMPowerLevel = 0;
+    static int hubHDMDiskAmount = 0;
+    static controller_data_t currentSentControllerData = {};
+    static controller_data_t prevSentControllerData = {}; //0 initialized as static
 #else
   // static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
   static uint8_t peerAddress[]   = {0x6C, 0xC8, 0x40, 0x87, 0x63, 0x34}; //Hub MAC Address
@@ -177,15 +181,30 @@ void  ESP_Now_TransmitDataController(){
   dataToSend.controller_data = controllerData;
   //Note that dataToSend.ultrasonic_data is not used so consider the data to be garbage and do not use it
   
-  /* DEBUG FOR THE STATUS OF THE SEND */
-  esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
-  Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
-
+  
   ESP_Now_PrintControllerData(); //Data that is going to be sent out
 
   Serial.printf("Attempting to send controller data to address: %02X:%02X:%02X:%02X:%02X:%02X\n",
               peerAddress[0], peerAddress[1], peerAddress[2],
               peerAddress[3], peerAddress[4], peerAddress[5]);  
+
+  /* DEBUG FOR THE STATUS OF THE SEND */
+  esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
+  // Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
+
+   #if TRANSCEIVER_BUILD == HUB_BUILD
+  //   //Only print to terminal for the hub
+  //   if(result == ESP_OK){
+  //     currentSentControllerData = controllerData; //stores controllerData before we attempt to send
+  //     if(prevSentControllerData.l1 != currentSentControllerData.l1){
+  //       if(prevSentControllerData.l1 == 1){
+            
+  //       }
+  //     }
+
+  //     prevSentControllerData = currentSentControllerData;
+  //   }
+    #endif
 }
 
 void ESP_Now_PairController(){
@@ -320,15 +339,15 @@ void ESP_Now_GetUltrasonicData(){
 }
 
 void ESP_Now_ParseControllerData(){
-  static controller_data_t prevControllerData = {}; //previous controller data from last transmission
+  static controller_data_t prevControllerData = {}; //previous controller data from last transmission, note 0 initialized because its statis
   controller_data_t recvControllerData = controllerData; /*temp variable in the event that controllerData changes on from ESP-NOW*/
   static int rpm = 0;
   if(recvControllerData.axisY > 50){
     if(recvControllerData.axisY > 256){
-      setDesiredRPM(LEFT_SIDE, 45);
+      setDesiredRPM(LEFT_SIDE, 30);
     }
     else{
-      setDesiredRPM(LEFT_SIDE, 20);
+      setDesiredRPM(LEFT_SIDE, 10);
     }
     //  rpm = map(rpm, 50, 512, 0, 45);
       // setDesiredRPM(LEFT_SIDE, rpm);
@@ -342,10 +361,10 @@ void ESP_Now_ParseControllerData(){
   }
   else if(recvControllerData.axisY < -50){ 
     if(recvControllerData.axisY < -256){
-      setDesiredRPM(LEFT_SIDE, 45);
+      setDesiredRPM(LEFT_SIDE, 30);
     }
     else{
-      setDesiredRPM(LEFT_SIDE, 20);
+      setDesiredRPM(LEFT_SIDE, 10);
     }
     //  rpm = map(rpm, -512, -50, 0, 45);
     // setDesiredRPM(LEFT_SIDE, rpm);
@@ -364,7 +383,7 @@ void ESP_Now_ParseControllerData(){
 
 
   if(recvControllerData.axisRY > 50){
-    if(recvControllerData.axisY > 256){
+    if(recvControllerData.axisRY > 256){
       setDesiredRPM(RIGHT_SIDE, 30);
     }
     else{
@@ -380,7 +399,7 @@ void ESP_Now_ParseControllerData(){
     motorDriveRight(BACKWARDS);
   }
   else if (recvControllerData.axisRY < -50){
-    if(recvControllerData.axisY < -256){
+    if(recvControllerData.axisRY < -256){
       setDesiredRPM(RIGHT_SIDE, 30);
     }
     else{

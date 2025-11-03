@@ -125,7 +125,7 @@
       int desiredRPM = getDesiredRPM(i);
 
       if(i == 3){//motor 4
-        int motorBLPWM = map(desiredRPM, 0, 45, 0, 255);
+        int motorBLPWM = map(desiredRPM, 0, 30, 0, 255);
         analogWrite(motorPWMPin[3], motorBLPWM);
         break;
       }
@@ -136,10 +136,10 @@
       }
       else{
         float error = ((desiredRPM - motorActualRPM[i]) / desiredRPM);
-        // error = constrain(error, -0.05, 0.05); //Forces the motor to slowly change
+        error = constrain(error, -0.05, 0.05); //Forces the motor to slowly change
 
         //[DEBUG]
-        Serial.printf("The error for motor %d is %f\n", i, error);
+        // Serial.printf("The error for motor %d is %f\n", i, error);
         // Serial.printf("error:%f", error);
         
         motorOutputVoltage[i] += error; //Adds the error the the output voltage
@@ -147,7 +147,7 @@
       /* this logic was given by Frankie Sharman, it can be expanded upon in the future and should be a PID controller 
       It normalizes the error (the stuff on the right) and adds it to the actual (the error could be a positive or negative value)*/
       motorOutputVoltage[i] = constrain(motorOutputVoltage[i], 0, MAX_VOLTAGE); //Sets the output voltage to a minimum of 0 or a max of 3.3
-      Serial.printf("The output voltage for motor %d is: %f\n", i, motorOutputVoltage[i]);
+      // Serial.printf("The output voltage for motor %d is: %f\n", i, motorOutputVoltage[i]);
       analogWrite(motorPWMPin[i], motorOutputVoltage[i] * 77);
       }
     }
@@ -172,19 +172,19 @@
     // Serial.printf("The frequency is %f\n", freq);
     float rpm  = RPM_FROM_FREQ(freq); //calculates rpm
     float wheel_rpm = WHEEL_RPM_FROM_ENC_RPM(rpm);
-    // Serial.printf("WheelRPM:%f\n", wheel_rpm);
-    Serial.printf("The calculated rpm for motor number %d is %f\n", motorNum, rpm);
+    Serial.printf("WheelRPM:%f\n", wheel_rpm);
+    // Serial.printf("The calculated rpm for motor number %d is %f\n", motorNum, rpm);
     return rpm;
   }
 
   void rampDown(uint8_t side){
-    if(side == LEFT_SIDE){
-      analogWrite(motorPWMPin[0], 0);
-      analogWrite(motorPWMPin[1], 0);
+    if(side == RIGHT_SIDE){
+      analogWrite(MOTOR_FR_PWM_PIN, 0);
+      analogWrite(MOTOR_BR_PWM_PIN, 0);
     }
     else{
-      analogWrite(motorPWMPin[2], 0);
-      analogWrite(motorPWMPin[3], 0);
+      analogWrite(MOTOR_FL_PWM_PIN, 0);
+      analogWrite(MOTOR_BL_PWM_PIN, 0);
     }
   }
 
