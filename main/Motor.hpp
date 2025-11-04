@@ -29,7 +29,7 @@
 #define MAX_WHEEL_RPM        45
 #define MAX_ENC_RPM          (MAX_WHEEL_RPM * GEAR_RATIO)
 #define WHEEL_CIRCUMFERENCE  (PI * WHEEL_DIAMETER)
-#define MAX_VOLTAGE          3.3
+#define MAX_VOLTAGE          3.3f
 #define RPM_STEP_SIZE        MAX_WHEEL_RPM / 5 /*Want 5 increments of speed*/
 
 #define FORWARDS             0
