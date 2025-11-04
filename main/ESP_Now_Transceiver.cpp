@@ -15,7 +15,6 @@
 #else
   // static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
   static uint8_t peerAddress[]   = {0x6C, 0xC8, 0x40, 0x87, 0x63, 0x34}; //Hub MAC Address
-
 #endif
 static  esp_now_peer_info_t peerInfo;
 
@@ -26,6 +25,8 @@ static controller_data_t controllerData;
 static ultrasonic_data_t ultrasonicData;
 
 static bool newControllerData = false;
+
+bool isPaused = false; //start as unpaused
 
 void ESP_Now_TransceiverInit(){
 /*
@@ -193,17 +194,66 @@ void  ESP_Now_TransmitDataController(){
   // Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
 
    #if TRANSCEIVER_BUILD == HUB_BUILD
-  //   //Only print to terminal for the hub
-  //   if(result == ESP_OK){
-  //     currentSentControllerData = controllerData; //stores controllerData before we attempt to send
-  //     if(prevSentControllerData.l1 != currentSentControllerData.l1){
-  //       if(prevSentControllerData.l1 == 1){
-            
-  //       }
-  //     }
+    //Only print to terminal for the hub
+      if(result == ESP_OK){
+        currentSentControllerData = controllerData; //stores controllerData before we attempt to send
 
-  //     prevSentControllerData = currentSentControllerData;
-  //   }
+        /* Power Level Changes */
+        if(prevSentControllerData.l1 != currentSentControllerData.l1){
+          if(prevSentControllerData.l1 == 1){
+              hubHDMPowerLevel += 5; //add 5
+              hubHDMPowerLevel = constrain(hubHDMPowerLevel, 0, 35); //35 MAX power
+              Serial.printf("Raising power level by 5");
+              Serial.printf("New power level now: %d", hubHDMPowerLevel);
+          }
+        }
+        if(prevSentControllerData.l2 != currentSentControllerData.l2){
+          if(prevSentControllerData.l2 == 1){
+              hubHDMPowerLevel -= 5; //remove 5
+              hubHDMPowerLevel = constrain(hubHDMPowerLevel, 0, 35); //35 MAX power
+              Serial.printf("Lowering power level by 5");
+              Serial.printf("New power level now: %d", hubHDMPowerLevel);
+          }
+        }
+
+        /* Disk count changes */
+        if(prevSentControllerData.r1 != currentSentControllerData.r1){
+          if(prevSentControllerData.r1 == 1){
+              hubHDMDiskAmount++; //add 1
+              hubHDMDiskAmount = constrain(hubHDMPowerLevel, 0, 10); //10 MAX disks
+              Serial.printf("Raising disk count by 1");
+              Serial.printf("New disk count now: %d", hubHDMDiskAmount);
+          }
+        }
+        if(prevSentControllerData.r2 != currentSentControllerData.r2){
+          if(prevSentControllerData.r2 == 1){
+              hubHDMDiskAmount--; //remove 1
+              hubHDMDiskAmount = constrain(hubHDMPowerLevel, 0, 10); //10 MAX disks
+              Serial.printf("Lowering disk count by 1");
+              Serial.printf("New disk count now: %d", hubHDMDiskAmount);
+          }
+        }
+
+        /* RESET POWER AND DISK */
+        if(prevSentControllerData.btnX != currentSentControllerData.btnX){
+          if(prevSentControllerData.btnX == 1){
+            hubHDMDiskAmount = 0;
+            hubHDMPowerAmount = 0;
+            Serial.printf("Reset disk and power amounts to 0");
+          }
+        }
+
+
+        /* PAUSE ROVER */
+        if(prevSentControllerData.btnY != currentSentControllerData.btnY){
+          if(prevSentControllerData.btnY == 1){
+            isPaused = !isPaused;
+            Serial.printf(isPaused == true ? "Rover has been paused" : "Rover has been unpaused");
+          }
+        }
+
+        prevSentControllerData = currentSentControllerData;
+      }
     #endif
 }
 
@@ -325,11 +375,16 @@ void ESP_Now_TransmitDataUltrasonic(){
 }
 
 void ESP_Now_Wait(){
-  if(newControllerData == true){
-    newControllerData = false;
-    ESP_Now_ParseControllerData();
+  if(!isPaused){
+    if(newControllerData == true){
+      newControllerData = false;
+      ESP_Now_ParseControllerData();
+    }
+    matchDesiredRPM();
   }
-  matchDesiredRPM();
+  else{
+    //Only preform actions if it isnt paused
+  }
 }
 
 void ESP_Now_GetUltrasonicData(){
@@ -440,6 +495,13 @@ void ESP_Now_ParseControllerData(){
   //   }
   // }
 
+  /* PAUSE ROVER */
+  if(prevControllerData.btnY != recvControllerData.btnY){ 
+    if(recvControllerData.btnY == 1){
+      isPaused = !isPaused; // toggle
+    }
+  }
+
   /* HDM Operations */
   if(prevControllerData.l1 != recvControllerData.l1){
     if(recvControllerData.l1 == 1){
@@ -474,6 +536,12 @@ void ESP_Now_ParseControllerData(){
   if(prevControllerData.btnB != recvControllerData.btnB){ 
     if(recvControllerData.btnB == 1){
       HDMSendCommand(HDM_COMMAND_ROTATE_BARREL);
+    }
+  }
+
+  if(prevControllerData.btnX != recvControllerData.btnX){ 
+    if(recvControllerData.btnX == 1){
+      HDMSendCommand(HDM_COMMAND_RESET);
     }
   }
 
