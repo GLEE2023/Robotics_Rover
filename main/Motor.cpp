@@ -130,7 +130,7 @@
           // analogWrite(motorPWMPin[MOTOR_BL], motorBLPWM);
         //Follow FL
         motorOutputVoltage[MOTOR_BL] = motorOutputVoltage[MOTOR_FL];
-        analogwrite(motorPWMPin[MOTOR_BL], motorOutputVoltage[MOTOR_BL]*77);
+        analogWrite(motorPWMPin[MOTOR_BL], motorOutputVoltage[MOTOR_BL]*77);
       }
       else{
       motorActualRPM[i] = calculateRPM(i);

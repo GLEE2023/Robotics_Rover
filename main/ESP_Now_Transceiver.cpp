@@ -120,6 +120,73 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
   Serial.print(macStr);
   Serial.print(" send status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+
+  
+   #if TRANSCEIVER_BUILD == HUB_BUILD
+    //Only print to terminal for the hub
+      if(status == ESP_NOW_SEND_SUCCESS){
+        currentSentControllerData = controllerData; //stores controllerData before we attempt to send
+
+        /* PAUSE ROVER */
+        if(prevSentControllerData.btnY != currentSentControllerData.btnY){
+          if(prevSentControllerData.btnY == 1){
+            isPaused = !isPaused;
+            Serial.printf(isPaused == true ? "Rover has been paused\n" : "Rover has been unpaused\n");
+          }
+        }
+
+        if(!isPaused){ //only update sutff on our end if the rover is not paused as on the rovers end it would not be updating
+          /* Power Level Changes */
+          if(prevSentControllerData.l1 != currentSentControllerData.l1){
+            if(prevSentControllerData.l1 == 1){
+                hubHDMPowerLevel += 5; //add 5
+                hubHDMPowerLevel = constrain(hubHDMPowerLevel, 0, 35); //35 MAX power
+                Serial.printf("Raising power level by 5\n");
+                Serial.printf("New power level now: %d\n", hubHDMPowerLevel);
+            }
+          }
+          if(prevSentControllerData.l2 != currentSentControllerData.l2){
+            if(prevSentControllerData.l2 == 1){
+                hubHDMPowerLevel -= 5; //remove 5
+                hubHDMPowerLevel = constrain(hubHDMPowerLevel, 0, 35); //35 MAX power
+                Serial.printf("Lowering power level by 5\n");
+                Serial.printf("New power level now: %d\n", hubHDMPowerLevel);
+            }
+          }
+
+          /* Disk count changes */
+          if(prevSentControllerData.r1 != currentSentControllerData.r1){
+            if(prevSentControllerData.r1 == 1){
+                hubHDMDiskAmount++; //add 1
+                hubHDMDiskAmount = constrain(hubHDMDiskAmount, 0, 10); //10 MAX disks
+                Serial.printf("Raising disk count by 1\n");
+                Serial.printf("New disk count now: %d\n", hubHDMDiskAmount);
+            }
+          }
+          if(prevSentControllerData.r2 != currentSentControllerData.r2){
+            if(prevSentControllerData.r2 == 1){
+                hubHDMDiskAmount--; //remove 1
+                hubHDMDiskAmount = constrain(hubHDMDiskAmount, 0, 10); //10 MAX disks
+                Serial.printf("Lowering disk count by 1\n");
+                Serial.printf("New disk count now: %d\n", hubHDMDiskAmount);
+            }
+          }
+
+          /* RESET POWER AND DISK */
+          if(prevSentControllerData.btnX != currentSentControllerData.btnX){
+            if(prevSentControllerData.btnX == 1){
+              hubHDMDiskAmount = 0;
+              hubHDMPowerLevel = 0;
+              Serial.printf("Reset disk and power amounts to 0\n");
+            }
+          }
+
+          
+
+          prevSentControllerData = currentSentControllerData;
+        }
+      }
+    #endif
 }
 
 void ESP_Now_TransmitData(uint32_t type){
@@ -193,68 +260,6 @@ void  ESP_Now_TransmitDataController(){
   esp_err_t result = esp_now_send(peerAddress, (uint8_t *) &dataToSend, sizeof(data_transmit_t));
   // Serial.printf("[DEBUG]: esp_now_send result: %d\n", result);//print if an error occured and of what type
 
-   #if TRANSCEIVER_BUILD == HUB_BUILD
-    //Only print to terminal for the hub
-      if(result == ESP_OK){
-        currentSentControllerData = controllerData; //stores controllerData before we attempt to send
-
-        /* Power Level Changes */
-        if(prevSentControllerData.l1 != currentSentControllerData.l1){
-          if(prevSentControllerData.l1 == 1){
-              hubHDMPowerLevel += 5; //add 5
-              hubHDMPowerLevel = constrain(hubHDMPowerLevel, 0, 35); //35 MAX power
-              Serial.printf("Raising power level by 5");
-              Serial.printf("New power level now: %d", hubHDMPowerLevel);
-          }
-        }
-        if(prevSentControllerData.l2 != currentSentControllerData.l2){
-          if(prevSentControllerData.l2 == 1){
-              hubHDMPowerLevel -= 5; //remove 5
-              hubHDMPowerLevel = constrain(hubHDMPowerLevel, 0, 35); //35 MAX power
-              Serial.printf("Lowering power level by 5");
-              Serial.printf("New power level now: %d", hubHDMPowerLevel);
-          }
-        }
-
-        /* Disk count changes */
-        if(prevSentControllerData.r1 != currentSentControllerData.r1){
-          if(prevSentControllerData.r1 == 1){
-              hubHDMDiskAmount++; //add 1
-              hubHDMDiskAmount = constrain(hubHDMPowerLevel, 0, 10); //10 MAX disks
-              Serial.printf("Raising disk count by 1");
-              Serial.printf("New disk count now: %d", hubHDMDiskAmount);
-          }
-        }
-        if(prevSentControllerData.r2 != currentSentControllerData.r2){
-          if(prevSentControllerData.r2 == 1){
-              hubHDMDiskAmount--; //remove 1
-              hubHDMDiskAmount = constrain(hubHDMPowerLevel, 0, 10); //10 MAX disks
-              Serial.printf("Lowering disk count by 1");
-              Serial.printf("New disk count now: %d", hubHDMDiskAmount);
-          }
-        }
-
-        /* RESET POWER AND DISK */
-        if(prevSentControllerData.btnX != currentSentControllerData.btnX){
-          if(prevSentControllerData.btnX == 1){
-            hubHDMDiskAmount = 0;
-            hubHDMPowerAmount = 0;
-            Serial.printf("Reset disk and power amounts to 0");
-          }
-        }
-
-
-        /* PAUSE ROVER */
-        if(prevSentControllerData.btnY != currentSentControllerData.btnY){
-          if(prevSentControllerData.btnY == 1){
-            isPaused = !isPaused;
-            Serial.printf(isPaused == true ? "Rover has been paused" : "Rover has been unpaused");
-          }
-        }
-
-        prevSentControllerData = currentSentControllerData;
-      }
-    #endif
 }
 
 void ESP_Now_PairController(){
@@ -375,16 +380,12 @@ void ESP_Now_TransmitDataUltrasonic(){
 }
 
 void ESP_Now_Wait(){
-  if(!isPaused){
     if(newControllerData == true){
       newControllerData = false;
       ESP_Now_ParseControllerData();
     }
     matchDesiredRPM();
-  }
-  else{
-    //Only preform actions if it isnt paused
-  }
+  
 }
 
 void ESP_Now_GetUltrasonicData(){
@@ -397,154 +398,160 @@ void ESP_Now_ParseControllerData(){
   static controller_data_t prevControllerData = {}; //previous controller data from last transmission, note 0 initialized because its statis
   controller_data_t recvControllerData = controllerData; /*temp variable in the event that controllerData changes on from ESP-NOW*/
   static int rpm = 0;
-  if(recvControllerData.axisY > 50){
-    if(recvControllerData.axisY > 256){
-      setDesiredRPM(LEFT_SIDE, 30);
-    }
-    else{
-      setDesiredRPM(LEFT_SIDE, 10);
-    }
-    //  rpm = map(rpm, 50, 512, 0, 45);
-      // setDesiredRPM(LEFT_SIDE, rpm);
-          // Serial.printf("Setting left RPM to %d", rpm);
-
-    // if(prevControllerData.axisY < -50){//if it was going forwards then we need to slow down before we change directions
-    //   rampDown(LEFT_SIDE);
-    //   delay(100);
-    // } 
-    motorDriveLeft(BACKWARDS);
-  }
-  else if(recvControllerData.axisY < -50){ 
-    if(recvControllerData.axisY < -256){
-      setDesiredRPM(LEFT_SIDE, 30);
-    }
-    else{
-      setDesiredRPM(LEFT_SIDE, 10);
-    }
-    //  rpm = map(rpm, -512, -50, 0, 45);
-    // setDesiredRPM(LEFT_SIDE, rpm);
-    // Serial.printf("Setting left RPM to %d", rpm);
-
-    // if(prevControllerData.axisY > -50){
-    //   rampDown(LEFT_SIDE);
-    //   delay(100);
-    // } 
-    motorDriveLeft(FORWARDS);
-  }
-  else{
-    //set rpm to 0 if joystick in neutral position
-    setDesiredRPM(LEFT_SIDE, 0);
-  }
-
-
-  if(recvControllerData.axisRY > 50){
-    if(recvControllerData.axisRY > 256){
-      setDesiredRPM(RIGHT_SIDE, 30);
-    }
-    else{
-      setDesiredRPM(RIGHT_SIDE, 10);
-    }
-    //  rpm = map(rpm, 50, 512, 0, 45);
-    // setDesiredRPM(RIGHT_SIDE, rpm);
-    // Serial.printf("Setting right RPM to %d", rpm);
-    //  if(prevControllerData.axisRY < -50){
-    //   rampDown(RIGHT_SIDE);
-    //   delay(100);
-    // } 
-    motorDriveRight(BACKWARDS);
-  }
-  else if (recvControllerData.axisRY < -50){
-    if(recvControllerData.axisRY < -256){
-      setDesiredRPM(RIGHT_SIDE, 30);
-    }
-    else{
-      setDesiredRPM(RIGHT_SIDE, 10);
-    }
-    //  rpm = map(rpm, -512, -50, 0, 45);
-    // setDesiredRPM(RIGHT_SIDE, rpm);
-    // Serial.printf("Setting right RPM to %d", rpm);
-    // if(prevControllerData.axisRY > 50){
-    //   rampDown(RIGHT_SIDE);
-    //   delay(100);
-    // } 
-    motorDriveRight(FORWARDS);
-  }
-  else{
-    //set RPM to 0 if joystick in neutral position
-     setDesiredRPM(RIGHT_SIDE, 0);
-  }
-
-  // if(prevControllerData.l1 != recvControllerData.l1){//Prevents triggering twice (on trigger and release)
-  //   if(recvControllerData.l1 == 1){
-  //     updateDesiredRPMLeft(INCREASE_SPEED);
-  //   }
-  // }
-  // if(prevControllerData.l2 != recvControllerData.l2){
-  //   if(recvControllerData.l2 == 1){
-  //     updateDesiredRPMLeft(DECREASE_SPEED);
-  //   }
-  // }
-  // if(prevControllerData.r1 != recvControllerData.r1){
-  //   if(recvControllerData.r1 == 1){
-  //     updateDesiredRPMRight(INCREASE_SPEED);
-  //   }
-  // }
-  // if(prevControllerData.r2 != recvControllerData.r2){
-  //   if(recvControllerData.r2 == 1){
-  //     updateDesiredRPMRight(DECREASE_SPEED);
-  //   }
-  // }
 
   /* PAUSE ROVER */
   if(prevControllerData.btnY != recvControllerData.btnY){ 
     if(recvControllerData.btnY == 1){
       isPaused = !isPaused; // toggle
+      setDesiredRPM(RIGHT_SIDE, 0);
+      setDesiredRPM(LEFT_SIDE, 0);
     }
   }
 
-  /* HDM Operations */
-  if(prevControllerData.l1 != recvControllerData.l1){
-    if(recvControllerData.l1 == 1){
-      HDMSendCommand(HDM_COMMAND_POWERUP);
+  if(!isPaused){
+    if(recvControllerData.axisY > 50){
+      if(recvControllerData.axisY > 256){
+        setDesiredRPM(LEFT_SIDE, 30);
+      }
+      else{
+        setDesiredRPM(LEFT_SIDE, 10);
+      }
+      //  rpm = map(rpm, 50, 512, 0, 45);
+        // setDesiredRPM(LEFT_SIDE, rpm);
+            // Serial.printf("Setting left RPM to %d", rpm);
+
+      // if(prevControllerData.axisY < -50){//if it was going forwards then we need to slow down before we change directions
+      //   rampDown(LEFT_SIDE);
+      //   delay(100);
+      // } 
+      motorDriveLeft(BACKWARDS);
+    }
+    else if(recvControllerData.axisY < -50){ 
+      if(recvControllerData.axisY < -256){
+        setDesiredRPM(LEFT_SIDE, 30);
+      }
+      else{
+        setDesiredRPM(LEFT_SIDE, 10);
+      }
+      //  rpm = map(rpm, -512, -50, 0, 45);
+      // setDesiredRPM(LEFT_SIDE, rpm);
+      // Serial.printf("Setting left RPM to %d", rpm);
+
+      // if(prevControllerData.axisY > -50){
+      //   rampDown(LEFT_SIDE);
+      //   delay(100);
+      // } 
+      motorDriveLeft(FORWARDS);
+    }
+    else{
+      //set rpm to 0 if joystick in neutral position
+      setDesiredRPM(LEFT_SIDE, 0);
+    }
+
+
+    if(recvControllerData.axisRY > 50){
+      if(recvControllerData.axisRY > 256){
+        setDesiredRPM(RIGHT_SIDE, 30);
+      }
+      else{
+        setDesiredRPM(RIGHT_SIDE, 10);
+      }
+      //  rpm = map(rpm, 50, 512, 0, 45);
+      // setDesiredRPM(RIGHT_SIDE, rpm);
+      // Serial.printf("Setting right RPM to %d", rpm);
+      //  if(prevControllerData.axisRY < -50){
+      //   rampDown(RIGHT_SIDE);
+      //   delay(100);
+      // } 
+      motorDriveRight(BACKWARDS);
+    }
+    else if (recvControllerData.axisRY < -50){
+      if(recvControllerData.axisRY < -256){
+        setDesiredRPM(RIGHT_SIDE, 30);
+      }
+      else{
+        setDesiredRPM(RIGHT_SIDE, 10);
+      }
+      //  rpm = map(rpm, -512, -50, 0, 45);
+      // setDesiredRPM(RIGHT_SIDE, rpm);
+      // Serial.printf("Setting right RPM to %d", rpm);
+      // if(prevControllerData.axisRY > 50){
+      //   rampDown(RIGHT_SIDE);
+      //   delay(100);
+      // } 
+      motorDriveRight(FORWARDS);
+    }
+    else{
+      //set RPM to 0 if joystick in neutral position
+      setDesiredRPM(RIGHT_SIDE, 0);
+    }
+
+    // if(prevControllerData.l1 != recvControllerData.l1){//Prevents triggering twice (on trigger and release)
+    //   if(recvControllerData.l1 == 1){
+    //     updateDesiredRPMLeft(INCREASE_SPEED);
+    //   }
+    // }
+    // if(prevControllerData.l2 != recvControllerData.l2){
+    //   if(recvControllerData.l2 == 1){
+    //     updateDesiredRPMLeft(DECREASE_SPEED);
+    //   }
+    // }
+    // if(prevControllerData.r1 != recvControllerData.r1){
+    //   if(recvControllerData.r1 == 1){
+    //     updateDesiredRPMRight(INCREASE_SPEED);
+    //   }
+    // }
+    // if(prevControllerData.r2 != recvControllerData.r2){
+    //   if(recvControllerData.r2 == 1){
+    //     updateDesiredRPMRight(DECREASE_SPEED);
+    //   }
+    // }
+
+    
+
+    /* HDM Operations */
+    if(prevControllerData.l1 != recvControllerData.l1){
+      if(recvControllerData.l1 == 1){
+        HDMSendCommand(HDM_COMMAND_POWERUP);
+      }
+    }
+
+    if(prevControllerData.l2 != recvControllerData.l2){
+      if(recvControllerData.l2 == 1){
+        HDMSendCommand(HDM_COMMAND_POWERDOWN);
+      }
+    }
+
+    if(prevControllerData.r1 != recvControllerData.r1){
+      if(recvControllerData.r1 == 1){
+        HDMSendCommand(HDM_COMMAND_INCREMENT_DISKS);
+      }
+    }
+
+    if(prevControllerData.r2 != recvControllerData.r2){
+      if(recvControllerData.r2 == 1){
+        HDMSendCommand(HDM_COMMAND_DECREMENT_DISKS);
+      }
+    }
+
+    if(prevControllerData.btnA != recvControllerData.btnA){ 
+      if(recvControllerData.btnA == 1){
+        HDMSendCommand(HDM_COMMAND_LAUNCH_DISKS);
+      }
+    }
+
+    if(prevControllerData.btnB != recvControllerData.btnB){ 
+      if(recvControllerData.btnB == 1){
+        HDMSendCommand(HDM_COMMAND_ROTATE_BARREL);
+      }
+    }
+
+    if(prevControllerData.btnX != recvControllerData.btnX){ 
+      if(recvControllerData.btnX == 1){
+        HDMSendCommand(HDM_COMMAND_RESET);
+      }
     }
   }
-
-  if(prevControllerData.l2 != recvControllerData.l2){
-    if(recvControllerData.l2 == 1){
-      HDMSendCommand(HDM_COMMAND_POWERDOWN);
-    }
-  }
-
-  if(prevControllerData.r1 != recvControllerData.r1){
-    if(recvControllerData.r1 == 1){
-      HDMSendCommand(HDM_COMMAND_INCREMENT_DISKS);
-    }
-  }
-
-  if(prevControllerData.r2 != recvControllerData.r2){
-    if(recvControllerData.r2 == 1){
-      HDMSendCommand(HDM_COMMAND_DECREMENT_DISKS);
-    }
-  }
-
-  if(prevControllerData.btnA != recvControllerData.btnA){ 
-    if(recvControllerData.btnA == 1){
-      HDMSendCommand(HDM_COMMAND_LAUNCH_DISKS);
-    }
-  }
-
-  if(prevControllerData.btnB != recvControllerData.btnB){ 
-    if(recvControllerData.btnB == 1){
-      HDMSendCommand(HDM_COMMAND_ROTATE_BARREL);
-    }
-  }
-
-  if(prevControllerData.btnX != recvControllerData.btnX){ 
-    if(recvControllerData.btnX == 1){
-      HDMSendCommand(HDM_COMMAND_RESET);
-    }
-  }
-
   // Serial.println("Parsed Controller data");
   //Update prev controller
   prevControllerData = recvControllerData;
