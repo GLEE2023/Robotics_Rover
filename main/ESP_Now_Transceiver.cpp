@@ -486,6 +486,7 @@ void ESP_Now_ParseControllerData(){
       setDesiredRPM(RIGHT_SIDE, 0);
     }
 
+    // No longer used speed control moved to joysticks
     // if(prevControllerData.l1 != recvControllerData.l1){//Prevents triggering twice (on trigger and release)
     //   if(recvControllerData.l1 == 1){
     //     updateDesiredRPMLeft(INCREASE_SPEED);

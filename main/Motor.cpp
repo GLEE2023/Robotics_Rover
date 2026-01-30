@@ -26,7 +26,7 @@
     pinMode(MOTOR_FR_ENC_PIN, INPUT_PULLUP); /*NE12 datasheet says it is open-collect ref: https://www.servocity.com/content/downloads/ne12_-_use_parameter.pdf */
     pinMode(MOTOR_BR_ENC_PIN, INPUT_PULLUP);
     pinMode(MOTOR_FL_ENC_PIN, INPUT_PULLUP);
-    // pinMode(MOTOR_BL_ENC_PIN, INPUT_PULLUP);
+    pinMode(MOTOR_BL_ENC_PIN, INPUT_PULLUP);
 
     /* Direction Controls Init*/
     pinMode(MOTOR_LEFT_DIR_PIN, OUTPUT);
@@ -37,7 +37,7 @@
     attachInterrupt(digitalPinToInterrupt(MOTOR_FR_ENC_PIN), motorFREncoderISR, RISING);
     attachInterrupt(digitalPinToInterrupt(MOTOR_BR_ENC_PIN), motorBREncoderISR, RISING);
     attachInterrupt(digitalPinToInterrupt(MOTOR_FL_ENC_PIN), motorFLEncoderISR, RISING);
-    // attachInterrupt(digitalPinToInterrupt(MOTOR_BL_ENC_PIN), motorBLEncoderISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(MOTOR_BL_ENC_PIN), motorBLEncoderISR, RISING);
   }
 
   /* Wrapper functions for motor drive direction */
@@ -124,15 +124,6 @@
     for(int i = 0; i<MOTOR_COUNT; i++){
       int desiredRPM = getDesiredRPM(i);
 
-      if(i == MOTOR_BL){//motor 4
-        //Hard Coded values
-          // int motorBLPWM = map(desiredRPM, 0, 30, 0, 255);
-          // analogWrite(motorPWMPin[MOTOR_BL], motorBLPWM);
-        //Follow FL
-        motorOutputVoltage[MOTOR_BL] = motorOutputVoltage[MOTOR_FL];
-        analogWrite(motorPWMPin[MOTOR_BL], motorOutputVoltage[MOTOR_BL]*77);
-      }
-      else{
       motorActualRPM[i] = calculateRPM(i);
       if(desiredRPM == 0){
         motorOutputVoltage[i] = 0; //sets the speed to 0 if the desiredRPM is 0
