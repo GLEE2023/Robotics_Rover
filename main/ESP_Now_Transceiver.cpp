@@ -1,19 +1,13 @@
 #include "ESP_Now_Transceiver.hpp"
 
-
 #if TRANSCEIVER_BUILD == HUB_BUILD //Hub only needs to see rover address
-  // static uint8_t peerAddress[] = {0x3C, 0x8A, 0x1F, 0xA7, 0x1E, 0x28}; //Rover MAC Address dead
-  // static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x4f, 0xD9, 0x10}; //Rover MAC Address dead
-  // static uint8_t peerAddress[] = {0x6C, 0xC8, 0x40, 0x86, 0x42, 0x24}; //Rover MAC Address dead
-    // static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Rover MAC Address Retired
-    static uint8_t peerAddress[]   = {0x38, 0x18, 0x2B, 0xB2, 0x9D, 0xA8}; //Rover MAC Address Active38:18:2b:b2:9d:a8
+    static uint8_t peerAddress[]   = {0x38, 0x18, 0x2B, 0xB3, 0x89, 0xD4}; //Rover MAC Address 
     static ControllerPtr myCurrentController;
     static int hubHDMPowerLevel = 0;
     static int hubHDMDiskAmount = 0;
     static controller_data_t currentSentControllerData = {};
     static controller_data_t prevSentControllerData = {}; //0 initialized as static
 #else
-  // static uint8_t peerAddress[]   = {0x3C, 0x8A, 0x1F, 0xA8, 0x9A, 0x74}; //Hub MAC Address
   static uint8_t peerAddress[]   = {0x6C, 0xC8, 0x40, 0x87, 0x63, 0x34}; //Hub MAC Address
 #endif
 static  esp_now_peer_info_t peerInfo;
@@ -411,36 +405,20 @@ void ESP_Now_ParseControllerData(){
   if(!isPaused){
     if(recvControllerData.axisY > 50){
       if(recvControllerData.axisY > 256){
-        setDesiredRPM(LEFT_SIDE, 30);
+        setDesiredRPM(LEFT_SIDE, 30); ..30 RPM Backwards
       }
       else{
-        setDesiredRPM(LEFT_SIDE, 10);
+        setDesiredRPM(LEFT_SIDE, 10); //10 RPM Backwards
       }
-      //  rpm = map(rpm, 50, 512, 0, 45);
-        // setDesiredRPM(LEFT_SIDE, rpm);
-            // Serial.printf("Setting left RPM to %d", rpm);
-
-      // if(prevControllerData.axisY < -50){//if it was going forwards then we need to slow down before we change directions
-      //   rampDown(LEFT_SIDE);
-      //   delay(100);
-      // } 
       motorDriveLeft(BACKWARDS);
     }
     else if(recvControllerData.axisY < -50){ 
       if(recvControllerData.axisY < -256){
-        setDesiredRPM(LEFT_SIDE, 30);
+        setDesiredRPM(LEFT_SIDE, 30); //30 RPM Forwards
       }
       else{
-        setDesiredRPM(LEFT_SIDE, 10);
+        setDesiredRPM(LEFT_SIDE, 10); //10 RPM Fowards
       }
-      //  rpm = map(rpm, -512, -50, 0, 45);
-      // setDesiredRPM(LEFT_SIDE, rpm);
-      // Serial.printf("Setting left RPM to %d", rpm);
-
-      // if(prevControllerData.axisY > -50){
-      //   rampDown(LEFT_SIDE);
-      //   delay(100);
-      // } 
       motorDriveLeft(FORWARDS);
     }
     else{
@@ -451,62 +429,26 @@ void ESP_Now_ParseControllerData(){
 
     if(recvControllerData.axisRY > 50){
       if(recvControllerData.axisRY > 256){
-        setDesiredRPM(RIGHT_SIDE, 30);
+        setDesiredRPM(RIGHT_SIDE, 30); //30 RPM Backwards
       }
       else{
-        setDesiredRPM(RIGHT_SIDE, 10);
+        setDesiredRPM(RIGHT_SIDE, 10); //10 RPM Backwards
       }
-      //  rpm = map(rpm, 50, 512, 0, 45);
-      // setDesiredRPM(RIGHT_SIDE, rpm);
-      // Serial.printf("Setting right RPM to %d", rpm);
-      //  if(prevControllerData.axisRY < -50){
-      //   rampDown(RIGHT_SIDE);
-      //   delay(100);
-      // } 
       motorDriveRight(BACKWARDS);
     }
     else if (recvControllerData.axisRY < -50){
       if(recvControllerData.axisRY < -256){
-        setDesiredRPM(RIGHT_SIDE, 30);
+        setDesiredRPM(RIGHT_SIDE, 30); //30 RPM Forwards
       }
       else{
-        setDesiredRPM(RIGHT_SIDE, 10);
+        setDesiredRPM(RIGHT_SIDE, 10); //10 RPM Forwards
       }
-      //  rpm = map(rpm, -512, -50, 0, 45);
-      // setDesiredRPM(RIGHT_SIDE, rpm);
-      // Serial.printf("Setting right RPM to %d", rpm);
-      // if(prevControllerData.axisRY > 50){
-      //   rampDown(RIGHT_SIDE);
-      //   delay(100);
-      // } 
       motorDriveRight(FORWARDS);
     }
     else{
       //set RPM to 0 if joystick in neutral position
       setDesiredRPM(RIGHT_SIDE, 0);
     }
-
-    // No longer used speed control moved to joysticks
-    // if(prevControllerData.l1 != recvControllerData.l1){//Prevents triggering twice (on trigger and release)
-    //   if(recvControllerData.l1 == 1){
-    //     updateDesiredRPMLeft(INCREASE_SPEED);
-    //   }
-    // }
-    // if(prevControllerData.l2 != recvControllerData.l2){
-    //   if(recvControllerData.l2 == 1){
-    //     updateDesiredRPMLeft(DECREASE_SPEED);
-    //   }
-    // }
-    // if(prevControllerData.r1 != recvControllerData.r1){
-    //   if(recvControllerData.r1 == 1){
-    //     updateDesiredRPMRight(INCREASE_SPEED);
-    //   }
-    // }
-    // if(prevControllerData.r2 != recvControllerData.r2){
-    //   if(recvControllerData.r2 == 1){
-    //     updateDesiredRPMRight(DECREASE_SPEED);
-    //   }
-    // }
 
     
 

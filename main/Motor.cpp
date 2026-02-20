@@ -10,7 +10,6 @@
   static int wheelRPMLeft      = 0;
   static int wheelRPMRight     = 0;
 
-
   float motorActualRPM[MOTOR_COUNT] = {0}; //Actual RPM calculated from the encoder pulses
   float motorOutputVoltage[MOTOR_COUNT] = {0}; //Outputted PWM to get the desired RPM
 
@@ -31,7 +30,6 @@
     /* Direction Controls Init*/
     pinMode(MOTOR_LEFT_DIR_PIN, OUTPUT);
     pinMode(MOTOR_RIGHT_DIR_PIN, OUTPUT);
-
 
     /* Creates ISR for encoders */
     attachInterrupt(digitalPinToInterrupt(MOTOR_FR_ENC_PIN), motorFREncoderISR, RISING);
