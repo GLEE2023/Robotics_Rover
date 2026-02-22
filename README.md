@@ -60,3 +60,22 @@ The Hub microcontroller compilation uses Bluepad32 (a Bluetooth protocol) to rea
 The Rover microcontroller configuration solely uses the ESP-NOW protocol. Additionally, to minimize the packet loss that occurs from running both Bluetooth and ESP-NOW at the same time, the rover microcontroller is set to disable power saving mode. This option cannot be disabled if both Bluetooth and ESP-NOW are running and since bluepad32 automatically enables Bluetooth, we cannot use that board configuration. The correct board that should be selected is  esp32 dev module by esp32. This can be seen in the image below.
 
 <img width="686" height="494" alt="image" src="https://github.com/user-attachments/assets/4a4868bc-4a57-480b-ad3e-df521ae77450" />
+
+# **Controller Buttons**
+
+B - Rotate Barrel
+A - Launch Disks
+Y - Pause Rover
+X - Reset HDM Values
+
+Dpad Left - Rotate Clockwise
+Dpad Right - Rotate Counterclock
+
+L1 (front left bumper) - Increase power by 5
+L2 (Back left bumper) - Decrease power by 5
+
+R1 (front right bumper) - Increase disk count by 1
+R2 (Back right bumper) - Decrease disk count by 1
+
+Right joystick - Right wheel (halfway is 10RPM full is 30RPM)
+Left joystick - Left wheel (halfway is 10RPM full is 30RPM)
