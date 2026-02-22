@@ -13,6 +13,10 @@ Click the box shown in the image below
 
 <img width="962" height="617" alt="image" src="https://github.com/user-attachments/assets/b7edbc3a-0c60-41c4-b282-2e636d141214" />
 
+Use bluepad32 version 4.1.0 and esp32 version 2.0.17
+
+<img width="263" height="747" alt="image" src="https://github.com/user-attachments/assets/5855b865-dd0f-472f-b0d0-74c6f262973b" />
+
 
 # **Compile Erorr**
 
@@ -36,7 +40,7 @@ After you open this document you will need to add the following lines of code
     network:
     connection_timeout: 600s
 
-**Make sure to indent connection_timeout: 600s**
+**Make sure to indent connection_timeout: 600s and then save**
 
 The image below shows what the corrected file should look like
 
