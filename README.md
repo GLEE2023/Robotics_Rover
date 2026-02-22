@@ -42,7 +42,7 @@ The image below shows what the corrected file should look like
 
 <img width="1372" height="320" alt="image" src="https://github.com/user-attachments/assets/ae099291-9980-4361-89ee-119107875126" />
 
-
+### **AFTER YOU INSTAL THE LIBRARIES GO BACK INTO THE arduino-cli.yamkl FILE AND REMOVE THE CODE WE ADDED**
 
 
 # **COMPILING THE CODE**
