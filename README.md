@@ -1,11 +1,51 @@
-Libraries required:
+# **Libraries required:**
 
 Bluepad32 by Ricardo Quesada: 
   To add these libraries go to file->preferences and paste the two links below in Additional boards manager URLs.
+
+  esp32 by Espressif Systems and Bluepad32
+    
     https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+    
     https://raw.githubusercontent.com/ricardoquesada/esp32-arduino-lib-builder/master/bluepad32_files/package_esp32_bluepad32_index.json
 
-esp32 by Espressif Systems
+Click the box shown in the image below
+
+<img width="962" height="617" alt="image" src="https://github.com/user-attachments/assets/b7edbc3a-0c60-41c4-b282-2e636d141214" />
+
+
+# **Compile Erorr**
+
+If you see the following error you must resolve it in the steps below.
+  
+    esp32:esp-x32@2511
+    Failed to install platform: 'esp32:esp32:3.3.7'.
+    Error: 4 DEADLINE_EXCEEDED: net/http: request canceled
+    (Client.Timeout or context cancellation while reading body)
+
+Open arduino-cli.yaml in a text editor. The filepath is as follows: 
+
+Linux/Mac: ~/.arduinoIDE/arduino-cli.yaml 
+
+Windows: C:\Users\YourUsername\.arduinoIDE\arduino-cli.yaml
+
+<img width="802" height="491" alt="image" src="https://github.com/user-attachments/assets/3c0a87d1-f403-4292-bd56-ccc6009727e9" />
+
+After you open this document you will need to add the following lines of code
+
+    network:
+    connection_timeout: 600s
+
+**Make sure to indent connection_timeout: 600s**
+
+The image below shows what the corrected file should look like
+
+<img width="1372" height="320" alt="image" src="https://github.com/user-attachments/assets/ae099291-9980-4361-89ee-119107875126" />
+
+
+
+
+# **COMPILING THE CODE**
 
 The code can be compiled for either the Hub microcontroller or Rover microcontroller. Before downloading the code go to BuildConfig.hpp and change TRANSCEIVER_BUILD to either HUB_BUILD or ROVER_BUILD.
 
