@@ -494,6 +494,15 @@ void ESP_Now_ParseControllerData(){
         HDMSendCommand(HDM_COMMAND_RESET);
       }
     }
+
+    if(prevControllerData.dpad != recvControllerData.dpad){ 
+      if(recvControllerData.dpad == 0x08){
+        HDMSendCommand(HDM_COMMAND_NUDGE_CC);
+      }
+      else if(recvControllerData.dpad == 0x04){
+        HDMSendCommand(HDM_COMMAND_NUDGE_CCW);
+      }
+    }
   }
   // Serial.println("Parsed Controller data");
   //Update prev controller
