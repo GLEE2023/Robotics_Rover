@@ -126,12 +126,10 @@
       if(desiredRPM == 0){
         motorOutputVoltage[i] = 0; //sets the speed to 0 if the desiredRPM is 0
       }
-
-
-
-      if(i=MOTOR_FL || i=MOTOR_BL){ /* HARD CODED VALUE CAN REMOVE THIS LATER*/
+      
+      if(i==MOTOR_FL || i==MOTOR_BL && motorOutputVoltage[i]!=0){ /* HARD CODED VALUE CAN REMOVE THIS LATER*/
         if(desiredRPM = 30){
-            analogWite(motorPWNPin[i], 30/45*255); //since max RPM is 45 30/45*3.3V is 2.2V I.e. 66% duty cycle
+            analogWrite(motorPWMPin[i], 30/45*255); //since max RPM is 45 30/45*3.3V is 2.2V I.e. 66% duty cycle
         }
         else if(desiredRPM = 10){
             analogWrite(motorPWMPin[i], 10/45*255); // want RPM of 10
@@ -139,10 +137,7 @@
       }
       else{
 
-
-
-        
-        else{
+        // else{ //UNCOMMENT WHEN RPM FIXED
           float error = ((float)(desiredRPM - motorActualRPM[i]) / desiredRPM); //typecast for accurate float division
           error = constrain(error, -0.05, 0.05); //Forces the motor to slowly change
 
@@ -151,14 +146,13 @@
           // Serial.printf("error:%f", error);
           
           motorOutputVoltage[i] += error; //Adds the error the the output voltage
-        }
+        // } //UNCOMMENT WHEN RPM FIXED
         /* this logic was given by Frankie Sharman, it can be expanded upon in the future and should be a PID controller 
         It normalizes the error (the stuff on the right) and adds it to the actual (the error could be a positive or negative value)*/
         motorOutputVoltage[i] = constrain(motorOutputVoltage[i], 0.0, MAX_VOLTAGE); //Sets the output voltage to a minimum of 0 or a max of 3.3
         // Serial.printf("The output voltage for motor %d is: %f\n", i, motorOutputVoltage[i]);
         analogWrite(motorPWMPin[i], motorOutputVoltage[i] * 77); //We use 3.3V logic so *77 to scale to 255
         }
-      }
     }
   }
 

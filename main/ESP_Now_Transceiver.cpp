@@ -405,7 +405,7 @@ void ESP_Now_ParseControllerData(){
   if(!isPaused){
     if(recvControllerData.axisY > 50){
       if(recvControllerData.axisY > 256){
-        setDesiredRPM(LEFT_SIDE, 30); ..30 RPM Backwards
+        setDesiredRPM(LEFT_SIDE, 30); //30 RPM Backwards
       }
       else{
         setDesiredRPM(LEFT_SIDE, 10); //10 RPM Backwards
