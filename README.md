@@ -23,7 +23,7 @@ If you see the following error you must resolve it in the steps below.
     Error: 4 DEADLINE_EXCEEDED: net/http: request canceled
     (Client.Timeout or context cancellation while reading body)
 
-Open arduino-cli.yaml in a text editor. The filepath is as follows: 
+Open arduino-cli.yaml in a text editor WITH the Arduino IDE already open. The filepath is as follows: 
 
 Linux/Mac: ~/.arduinoIDE/arduino-cli.yaml 
 
@@ -42,7 +42,7 @@ The image below shows what the corrected file should look like
 
 <img width="1372" height="320" alt="image" src="https://github.com/user-attachments/assets/ae099291-9980-4361-89ee-119107875126" />
 
-### **AFTER YOU INSTAL THE LIBRARIES GO BACK INTO THE arduino-cli.yamkl FILE AND REMOVE THE CODE WE ADDED**
+### **AFTER YOU INSTALL THE LIBRARIES GO BACK INTO THE arduino-cli.yamkl FILE AND REMOVE THE CODE WE ADDED OR ELSE THE IDE MAY NOT BOOT UP IN THE FUTURE**
 
 
 # **COMPILING THE CODE**
