@@ -13,9 +13,9 @@ Click the box shown in the image below
 
 <img width="962" height="617" alt="image" src="https://github.com/user-attachments/assets/b7edbc3a-0c60-41c4-b282-2e636d141214" />
 
-Use bluepad32 version 4.1.0 and esp32 version 2.0.17
+Use bluepad32 version 4.1.0 and esp32 version 3.2.1
 
-<img width="263" height="747" alt="image" src="https://github.com/user-attachments/assets/5855b865-dd0f-472f-b0d0-74c6f262973b" />
+<img width="436" height="1182" alt="image" src="https://github.com/user-attachments/assets/e6cde2a4-3de1-41ca-a843-5264cc1c357a" />
 
 
 # **Compile Erorr**
