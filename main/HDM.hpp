@@ -19,6 +19,8 @@ enum HDMCommand : uint8_t {
   HDM_COMMAND_RESET,
   HDM_COMMAND_NUDGE_CC,
   HDM_COMMAND_NUDGE_CCW,
+  HDM_COMMAND_NUDGE_POWER_UP,
+  HDM_COMMAND_NUDGE_POWER_DOWN,
 };
 
 void HDMInit(); //Initializes UART for the HDM and Rover

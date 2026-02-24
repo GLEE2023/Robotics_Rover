@@ -32,6 +32,14 @@
 #define WIFI_CHANNEL                      0
 #define ULTRASONIC_COUNT                  4
 
+#define DPAD_UP                           0x01
+#define DPAD_DOWN                         0x02
+#define DPAD_RIGHT                        0x04
+#define DPAD_LEFT                         0x08
+
+/* HDM Max Amounts*/
+#define MAX_NUDGE_POWER                   3            
+
 typedef struct controller_data_t{
   uint8_t dpad;
   int axisX;

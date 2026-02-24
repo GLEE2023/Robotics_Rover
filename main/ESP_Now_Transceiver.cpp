@@ -5,6 +5,7 @@
     static ControllerPtr myCurrentController;
     static int hubHDMPowerLevel = 0;
     static int hubHDMDiskAmount = 0;
+    static int hubHDMNudgePower = 0;
     static controller_data_t currentSentControllerData = {};
     static controller_data_t prevSentControllerData = {}; //0 initialized as static
 #else
@@ -171,10 +172,27 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
             if(prevSentControllerData.btnX == 1){
               hubHDMDiskAmount = 0;
               hubHDMPowerLevel = 0;
+              hubHDMNudgePower = 0;
               Serial.printf("Reset disk and power amounts to 0\n");
             }
           }
 
+          /* NUDGE AMOUNT CHANGE*/
+          if(prevControllerData.dpad != recvControllerData.dpad){ 
+            if(recvControllerData.dpad == DPAD_UP){
+              hubHDMNudgePower++;
+              hubHDMNudgePower = constrain(hubHDMNudgePower, 0, MAX_NUDGE_POWER); 
+              Serial.printf("Lowering nudge power by 1\n");
+              Serial.printf("New nudge power now: %d\n", hubHDMNudgePower);
+            }
+            else if(recvControllerData.dpad == DPAD_DOWN){
+              HDMSendCommand(HDM_COMMAND_NUDGE_POWER_DOWN);
+              hubHDMNudgePower--;
+              hubHDMNudgePower = constrain(hubHDMNudgePower, 0, MAX_NUDGE_POWER); 
+              Serial.printf("Raising nudge power by 1\n");
+              Serial.printf("New nudge power now: %d\n", hubHDMNudgePower);
+            }
+          }
           
 
           prevSentControllerData = currentSentControllerData;
@@ -495,14 +513,26 @@ void ESP_Now_ParseControllerData(){
       }
     }
 
+    // Nudge Functions
     if(prevControllerData.dpad != recvControllerData.dpad){ 
-      if(recvControllerData.dpad == 0x08){
+      if(recvControllerData.dpad == DPAD_LEFT){
         HDMSendCommand(HDM_COMMAND_NUDGE_CC);
       }
-      else if(recvControllerData.dpad == 0x04){
+      else if(recvControllerData.dpad == DPAD_RIGHT){
         HDMSendCommand(HDM_COMMAND_NUDGE_CCW);
       }
     }
+
+    // Nudge power
+    if(prevControllerData.dpad != recvControllerData.dpad){ 
+      if(recvControllerData.dpad == DPAD_UP){
+        HDMSendCommand(HDM_COMMAND_NUDGE_POWER_UP);
+      }
+      else if(recvControllerData.dpad == DPAD_DOWN){
+        HDMSendCommand(HDM_COMMAND_NUDGE_POWER_DOWN);
+      }
+    }
+    
   }
   // Serial.println("Parsed Controller data");
   //Update prev controller
